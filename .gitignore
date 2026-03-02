@@ -1,0 +1,51 @@
+# --- Secrets & Credentials (CRITICAL) ---
+.env
+.env.*
+!.env.example
+!.env.template
+# AWS/Cloud keys om de skulle råka hamna här
+.aws/
+secrets/
+
+# --- Dependency Management (uv) ---
+# Jag ignorerar miljön, men INTE uv.lock (den är min "truth")
+.venv/
+venv/
+ENV/
+env/
+
+# --- Local Databases ---
+*.sqlite
+*.sqlite3
+*.db
+*.duckdb
+*.wal
+*.journal
+
+# --- Logs & Temp ---
+*.log
+*.tmp
+*.bak
+*.old
+
+# --- Code Quality & Testing (The Guardrails) ---
+# Ruff cache (gör linter snabbare lokalt, men behövs ej i git)
+.ruff_cache/
+# Mypy cache (type checking history)
+.mypy_cache/
+.dmypy.json
+# Pytest cache
+.pytest_cache/
+# Coverage reports (när jag kör pytest --cov)
+.coverage
+htmlcov/
+coverage.xml
+
+# --- IDE & Editor Junk ---
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
