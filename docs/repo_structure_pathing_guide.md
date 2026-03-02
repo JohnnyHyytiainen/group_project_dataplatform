@@ -24,6 +24,7 @@ projekt_root/
 │   ├── main.py          # Startpunkt för API/App
 │   └── database.py      # Databaskopplingar
 ├── data/                # IGNORERAS AV GIT! Här lägger du lokala dataset.
+|     └── sample/        # Här läggs SMÅ sample filer. (INGENTING över 75MB i form av JSON/JSONL ska pushas upp)
 ├── docker-compose.yml   # Startar vår infrastruktur (t.ex. databas, Kafka)
 ├── .env.example         # Mall för hemligheter (kopiera till .env)
 ├── .gitignore           # Vår sköld mot att ladda upp fel saker
