@@ -14,6 +14,11 @@ venv/
 ENV/
 env/
 
+# data/raw ska aldrig in
+data/processed/
+data/tmp/
+data/raw/
+
 # --- Local Databases ---
 *.sqlite
 *.sqlite3
