@@ -63,3 +63,24 @@ För att vi ska kunna söka och förstå varandras kod, bör vi alltid `snake_ca
 
 * ❌ `Min Nya Fil.py`, `CamelCaseTable`
 * ✅ `min_nya_fil.py`, `job_roles`
+
+## 5. Commit standard.
+
+För att vi ska kunna hålla samma typ av standard för commits och dess meddelanden så rekommenderar jag att vi använder oss utav denna typ av standard: 
+
+`type(scope): short description`
+
+**Exempel:**
+- `feat(db): add job_role table`
+- `fix(api): handle empty payload`
+- `docs(erd): update LDM`
+- `chore: update gitignore`
+
+**Vanliga typer av commits:**
+- `feat` ny funktion
+- `fix` buggfix
+- `docs` dokument/diagram/README
+- `chore` städ, config, tooling
+- `refactor` omstrukturering utan beteendeförändring
+- `test` tester
+- `perf` prestanda

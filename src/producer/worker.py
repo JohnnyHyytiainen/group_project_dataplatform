@@ -1,0 +1,1 @@
+# Scriptet som läser från kafka

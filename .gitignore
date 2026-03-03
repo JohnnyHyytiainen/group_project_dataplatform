@@ -15,7 +15,6 @@ ENV/
 env/
 
 # data/raw ska aldrig in
-data/processed/
 data/tmp/
 data/raw/
 
