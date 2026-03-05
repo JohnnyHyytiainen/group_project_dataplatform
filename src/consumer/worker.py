@@ -38,6 +38,24 @@ RPM_MAX_NORMAL = 1600.0
 VIBRATION_MAX_NORMAL = 10.0
 
 
+# --- 1. PYDANTIC VALIDATION MODEL ---
+class SensorEvent(BaseModel):
+    engine_id: str
+    appliance_type: str
+    timestamp: datetime
+    run_hours: float = Field(..., ge=0.0, le=10500.0)
+    location: str
+    rpm: Optional[float] = Field(
+        None, ge=0.0, le=5000.0
+    )  # Optional — producer can send null or SENSOR_OFFLINE
+    engine_temp: Optional[float] = Field(
+        None, ge=10.0, le=150.0
+    )  # Optional — producer can send null or SENSOR_OFFLINE
+    vibration_hz: Optional[float] = Field(
+        None, ge=0.0, le=50.0
+    )  # Optional — producer can send null or SENSOR_OFFLINE
+
+
 # --- 2. DATABASE SETUP ---
 def setup_database() -> None:
     """Creates staging and dead letter queue tables if they don't exist."""
@@ -131,3 +149,138 @@ def get_vibration_flag(vibration_hz: Optional[float]) -> Optional[str]:
     elif vibration_hz > VIBRATION_MAX_NORMAL:
         return "WARNING"
     return None
+
+
+# --- 7. KAFKA CONSUMER ---
+def run_consumer(
+    bootstrap_servers: str = "localhost:9092",
+    group_id: str = "sensor-consumer-group",
+    topic: str = "sensor_data_stream",
+) -> None:
+    """
+    Main consumer loop. Reads messages from Kafka, validates them with Pydantic,
+    and routes them to staging_sensor_data or faulty_events.
+    """
+    conf = {
+        "bootstrap.servers": bootstrap_servers,
+        "group.id": group_id,
+        "auto.offset.reset": "earliest",
+        "enable.auto.commit": True,
+    }
+
+    consumer = Consumer(conf)
+    consumer.subscribe([topic])
+    logger.info(f"Consumer subscribed to topic: '{topic}' | group: '{group_id}'")
+
+    try:
+        setup_database()
+
+        with psycopg.connect(DB_DSN) as conn:
+            with conn.cursor() as cur:
+                logger.info("Starting QA gate. Press CTRL+C to stop.\n")
+
+                while True:
+                    msg = consumer.poll(timeout=1.0)
+                    if msg is None:
+                        continue
+                    if msg.error():
+                        if msg.error().code() == KafkaError._PARTITION_EOF:
+                            continue
+                        else:
+                            raise KafkaException(msg.error())
+
+                    raw_json_string = msg.value().decode("utf-8")
+
+                    try:
+                        raw_dict = json.loads(raw_json_string)
+
+                        # Validate against Pydantic model — rejects bad types, missing fields, out-of-range values
+                        event = SensorEvent(**raw_dict)
+
+                        # Evaluate all flags
+                        maintenance_flag = get_maintenance_flag(event.run_hours)
+                        temp_flag = get_temp_flag(event.engine_temp)
+                        rpm_flag = get_rpm_flag(event.rpm)
+                        vibration_flag = get_vibration_flag(event.vibration_hz)
+
+                        # Log any active flags
+                        if maintenance_flag:
+                            logger.warning(
+                                f"[MAINTENANCE {maintenance_flag}] engine={event.engine_id} | "
+                                f"type={event.appliance_type} | run_hours={event.run_hours}h"
+                            )
+                        if temp_flag:
+                            logger.warning(
+                                f"[TEMPERATURE {temp_flag}] engine={event.engine_id} | "
+                                f"temp={event.engine_temp}°C"
+                            )
+                        if rpm_flag:
+                            logger.warning(
+                                f"[RPM {rpm_flag}] engine={event.engine_id} | "
+                                f"rpm={event.rpm}"
+                            )
+                        if vibration_flag:
+                            logger.warning(
+                                f"[VIBRATION {vibration_flag}] engine={event.engine_id} | "
+                                f"vibration={event.vibration_hz}hz"
+                            )
+
+                        # Insert clean event into staging
+                        cur.execute(
+                            """
+                            INSERT INTO staging_sensor_data
+                                (engine_id, appliance_type, run_hours, location,
+                                 rpm, engine_temp, vibration_hz,
+                                 maintenance_flag, temp_flag, rpm_flag, vibration_flag,
+                                 event_timestamp)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            """,
+                            (
+                                event.engine_id,
+                                event.appliance_type,
+                                event.run_hours,
+                                event.location,
+                                event.rpm,
+                                event.engine_temp,
+                                event.vibration_hz,
+                                maintenance_flag,
+                                temp_flag,
+                                rpm_flag,
+                                vibration_flag,
+                                event.timestamp,
+                            ),
+                        )
+                        logger.info(
+                            f"PASSED: engine={event.engine_id} | "
+                            f"type={event.appliance_type} | run_hours={event.run_hours}h"
+                        )
+
+                    except ValidationError as e:
+                        # Pydantic rejected the event — send to dead letter queue
+                        cur.execute(
+                            "INSERT INTO faulty_events (raw_data, error_reason) VALUES (%s, %s)",
+                            (raw_json_string, str(e)),
+                        )
+                        logger.warning(
+                            f"REJECTED (validation): {str(e).splitlines()[0]}"
+                        )
+
+                    except (json.JSONDecodeError, Exception) as e:
+                        # Malformed JSON or unexpected error — also goes to dead letter queue
+                        cur.execute(
+                            "INSERT INTO faulty_events (raw_data, error_reason) VALUES (%s, %s)",
+                            (raw_json_string, str(e)),
+                        )
+                        logger.error(f"REJECTED (critical): {e}")
+
+                    conn.commit()
+
+    except KeyboardInterrupt:
+        logger.info("Consumer stopped by user (Ctrl+C).")
+    finally:
+        consumer.close()
+        logger.info("Consumer closed.")
+
+
+if __name__ == "__main__":
+    run_consumer()
