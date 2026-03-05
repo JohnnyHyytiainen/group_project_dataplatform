@@ -14,9 +14,9 @@ venv/
 ENV/
 env/
 
-# data/raw ska aldrig in
+# data/raw ska in så vår source of truth är likadan
 data/tmp/
-data/raw/
+
 
 # --- Local Databases ---
 *.sqlite
