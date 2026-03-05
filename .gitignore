@@ -40,6 +40,10 @@ data/tmp/
 .dmypy.json
 # Pytest cache
 .pytest_cache/
+# --- Python Cache (Bytecode) ---
+__pycache__/
+*.py[cod]
+*$py.class
 # Coverage reports (när jag kör pytest --cov)
 .coverage
 htmlcov/
