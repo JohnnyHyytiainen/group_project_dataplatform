@@ -16,7 +16,10 @@
 - Update generator.py name to producer.py
     - Done
 
-- Add more mess and dirt in generated synthetic data to give rest of group to clean in silver layer
+- Add some kind of 'fleet system' to be able to track usage over time for each sensor.
+    - 
+
+- Add function for format_noise and category_noise in generated data for group to clean in silver layer with pandas/etl script.
     - 
 
 - Create rough datamodeling drafts of ERD for silver layer 
