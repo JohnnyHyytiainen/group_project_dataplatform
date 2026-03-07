@@ -1,0 +1,35 @@
+erDiagram
+    ENGINE ||--o{ SENSOR_EVENT : emits
+
+    SENSOR_EVENT ||--o| STAGING_SENSOR_RECORD : accepted_as
+    SENSOR_EVENT ||--o| FAULTY_EVENT_RECORD  : rejected_as
+
+    ENGINE {
+      string engine_id
+    }
+
+    SENSOR_EVENT {
+      string engine_id
+      string appliance_type
+      datetime timestamp
+      float run_hours
+      string location
+      float rpm
+      float engine_temp
+      float vibration_hz
+    }
+
+    STAGING_SENSOR_RECORD {
+      string raw_data
+      string maintenance_flag
+      string temp_flag
+      string rpm_flag
+      string vibration_flag
+      datetime ingested_at
+    }
+
+    FAULTY_EVENT_RECORD {
+      string raw_data
+      string error_reason
+      datetime ingested_at
+    }

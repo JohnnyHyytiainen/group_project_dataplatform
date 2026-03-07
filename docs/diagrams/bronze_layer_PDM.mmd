@@ -1,0 +1,17 @@
+erDiagram
+    STAGING_SENSOR_DATA {
+      int id PK "SERIAL"
+      text raw_data "NOT NULL"
+      text maintenance_flag "NULL"
+      text temp_flag "NULL"
+      text rpm_flag "NULL"
+      text vibration_flag "NULL"
+      timestamp ingested_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    FAULTY_EVENTS {
+      int id PK "SERIAL"
+      text raw_data "NULL"
+      text error_reason "NULL"
+      timestamp ingested_at "DEFAULT CURRENT_TIMESTAMP"
+    }

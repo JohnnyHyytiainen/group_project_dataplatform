@@ -1,0 +1,31 @@
+erDiagram
+    SENSOR_EVENT_PAYLOAD ||--o{ STAGING_SENSOR_DATA : "stored as raw text"
+    SENSOR_EVENT_PAYLOAD ||--o{ FAULTY_EVENTS       : "stored as raw text"
+
+    SENSOR_EVENT_PAYLOAD {
+      string engine_id
+      string appliance_type
+      datetime timestamp
+      float run_hours
+      string location
+      float rpm "nullable"
+      float engine_temp "nullable"
+      float vibration_hz "nullable"
+    }
+
+    STAGING_SENSOR_DATA {
+      int id PK
+      text raw_data "dirty raw text"
+      string maintenance_flag "nullable"
+      string temp_flag "nullable"
+      string rpm_flag "nullable"
+      string vibration_flag "nullable"
+      datetime ingested_at
+    }
+
+    FAULTY_EVENTS {
+      int id PK
+      text raw_data "dirty raw text (nullable if we want)"
+      string error_reason "nullable/required (we choose)"
+      datetime ingested_at
+    }
