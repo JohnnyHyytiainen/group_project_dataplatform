@@ -17,12 +17,17 @@
     - Done
 
 - Add some kind of 'fleet system' to be able to track usage over time for each sensor.
-    - 
+    - Done
 
 - Add function for format_noise and category_noise in generated data for group to clean in silver layer with pandas/etl script.
-    - 
+    - Done
+
+- Add module overview docs for producer.py(me) + consumer.py(Indira)
+    - Done
+
+- Add visual ERDs(CDM,LDM,PDM) for bronze layer
+    - Done
 
 - Create rough datamodeling drafts of ERD for silver layer 
-    - 
-
+    - Done
 ```
