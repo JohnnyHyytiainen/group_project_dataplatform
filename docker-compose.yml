@@ -1,5 +1,4 @@
 services:
-  # Din Sandbox Databas
   postgres:
     image: postgres:16-alpine
     container_name: group_project
@@ -12,7 +11,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  # Sandbox Kafka (KRaft mode)
+  # Kafka (KRaft mode)
   kafka:
     image: apache/kafka:latest
     container_name: group_kafka
