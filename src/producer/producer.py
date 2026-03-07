@@ -58,7 +58,7 @@ try:
             # ==========
             machine = random.choice(fleet)
             # Säkerställer satt maskin(motor) har varit igång mellan 1-20 timmar sedan förra mätningen
-            hours_passed = random.uniform(1.0, 20.0)
+            hours_passed = random.uniform(1.0, 12.0)
             # Uppdaterar maskinens INBYGGDA state
             machine["current_time"] += timedelta(hours=hours_passed)
             machine["run_hours"] += hours_passed
@@ -124,11 +124,12 @@ try:
             # Spara och skicka till raw fil. Source of Truth
             file.write(json.dumps(event) + "\n")
             file.flush() 
-
+            
+            # Skicka till kafka
             json_payload = json.dumps(event).encode('utf-8')
             producer.produce(TOPIC_NAME, value=json_payload, callback=delivery_report)
             producer.poll(0)
-
+            # Tidsintervall för att kontrollera hur snabbt data ska genereras
             time.sleep(0.1)
 
 except KeyboardInterrupt:
