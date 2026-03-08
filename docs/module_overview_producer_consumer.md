@@ -20,9 +20,9 @@ Dataflödet i Bronze lagret är händelsestyrt (Event Driven) och består av tre
 - Vi gjorde valet att producera och använda oss av syntetisk data i denna labb. Det handlar inte om att undvika jobb utan om att **kontrollera "experimentet"** så att vi kan bevisa att pipeline + datakvalitet fungerar. Detta genom:
 
 1. **Reproducerbarhet (det viktigaste i en labb)** 
-    * Med syntetisk data kan ni köra samma scenario om och om igen och få jämförbara resultat.
+    * Med syntetisk data kan vi köra samma scenario om och om igen och få jämförbara resultat.
 
-    * Ett externt API kan ändra payload utan förvarning, ge olika data beroende på tid, eller börja rate limit'a när ni demar eller behöver mer data för test.
+    * Ett externt API kan ändra payload utan förvarning, ge olika data beroende på tid, eller börja rate limit'a när vi demar eller behöver mer data för test.
 
     * Reproducerbarhet gör att vi kan skriva tester, valideringsregler och 'expected outcomes'.
 

@@ -44,7 +44,7 @@ for x in range(NUM_MACHINES):
         "appliance_type": random.choice(["washing_machine", "dryer", "dishwasher", "drying_cabinet"]),
         "location": fake.city(),
         # Ger våra maskiner(motorer) en starttid i det förflutna. Våra sensorer började mäta 2006.
-        "current_time": fake.date_time_between(start_date=datetime(2006, 1, 1), end_date=datetime(2026, 1, 30)),
+        "current_time": fake.date_time_between(start_date=datetime(2006, 1, 1), end_date=datetime.now()),
         # Genererar en slumpmässig mätarställning från start
         "run_hours": round(random.uniform(10.0, 5000.0), 1)
     })
@@ -107,8 +107,9 @@ try:
 
                 # --- NYTT - ETL SMUTS ---
                 elif error_type == "format_noise":
-                    # Gör om float till smutsig str med whitespaces(mellanslag)
-                    event["rpm"] = f"   {event['rpm']}   "
+                    # Slumpa vilket värde som blir en smutsig sträng med whitespaces(mellanslag)
+                    noisy_sensor = random.choice(["rpm", "engine_temp", "vibration_hz", "run_hours"])
+                    event[noisy_sensor] = f"   {event[noisy_sensor]}   "
 
                 elif error_type == "category_noise":
                     # Gör om normala namn mot något som kräver .str.lower() i Pandas / .str.lower() i etl script.
