@@ -4,10 +4,12 @@ from datetime import datetime
 class SensorEvent(BaseModel):
     engine_id: str
     appliance_type: str
-    sensor_type: str
-    run_hours: float = Field(..., ge=0.0)
-    value: float = Field(..., ge=-50.0, le=5000.0)
     timestamp: datetime
+    run_hours: float = Field(..., ge=0.0, le=10500.0)
     location: str
+    rpm: Optional[float] = Field(None, ge=0.0, le=5000.0)
+    engine_temp: Optional[float] = Field(None, ge=10.0, le=150.0)
+    vibration_hz: Optional[float] = Field(None, ge=0.0, le=50.0)
+
 
 
