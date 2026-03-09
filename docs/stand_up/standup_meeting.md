@@ -28,3 +28,13 @@
     - 
 
 ```
+
+## Monday 09/03-2026
+**Goals for today:**
+```text
+- Go through current status of project.
+    - Done
+
+- Divide upp script into separate functions for everyone to push something code worthy to repo
+    - Done
+```

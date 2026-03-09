@@ -31,3 +31,19 @@
 - Create rough datamodeling drafts of ERD for silver layer 
     - Done
 ```
+
+## Sunday 08/03-2026
+```text
+- Refactored producer.py to let it generate more chaos and faulty values instead of just RPM. Now includes: "rpm", "engine_temp", "vibration_hz", "run_hours" instead of just rpm.
+    - Done
+```
+
+## Monday 09/03-2026
+**Goals for today:**
+```text
+- Hold stand up meeting
+    - Done
+
+- Generate new data for db with improved params
+    - Done
+```
