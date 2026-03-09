@@ -33,7 +33,7 @@ print(f"Starting transmition!\n Saving source of Truth locally to: {RAW_DATA_FIL
 # ==========
 # 1) Bygger vår flotta av motorer vi väljer (Så kallad 'Stateful data')
 # ==========
-NUM_MACHINES = 4000 # Antal unika motorer i vår flotta
+NUM_MACHINES = 1000 # Antal unika motorer i vår flotta
 fleet = []
 print(f"Building our fleet of {NUM_MACHINES}..")
 
