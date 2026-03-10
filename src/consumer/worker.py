@@ -1,22 +1,16 @@
 # Script that reads from Kafka
-import os
 import json
 import logging
 import psycopg
-from dotenv import load_dotenv
 from confluent_kafka import Consumer, KafkaError, KafkaException
-from pydantic import BaseModel, ValidationError, Field
-from datetime import datetime
 from typing import Optional
 
-# Load environment variables
-load_dotenv()
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT", "5439")
-DB_NAME = os.getenv("DB_NAME")
-DB_DSN = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+from pydantic import ValidationError
+from src.schemas.sensor_schema import SensorEvent
+from src.config.db_config import get_dsn
+
+# Database connection via shared configuration function (SOC)
+DB_DSN = get_dsn()
 
 # Logging setup
 logging.basicConfig(
@@ -32,19 +26,7 @@ RPM_MAX_NORMAL = 1600.0
 VIBRATION_MAX_NORMAL = 10.0
 
 
-# --- 1. PYDANTIC VALIDATION MODEL ---
-class SensorEvent(BaseModel):
-    engine_id: str
-    appliance_type: str
-    timestamp: datetime
-    run_hours: float = Field(..., ge=0.0, le=10500.0)
-    location: str
-    rpm: Optional[float] = Field(None, ge=0.0, le=5000.0)
-    engine_temp: Optional[float] = Field(None, ge=10.0, le=150.0)
-    vibration_hz: Optional[float] = Field(None, ge=0.0, le=50.0)
-
-
-# --- 2. DATABASE SETUP ---
+# --- DATABASE SETUP ---
 def setup_database() -> None:
     """Creates staging and dead letter queue tables if they don't exist."""
     with psycopg.connect(DB_DSN) as conn:
@@ -80,7 +62,7 @@ def setup_database() -> None:
             )
 
 
-# --- 3. FLAG LOGIC ---
+# --- FLAG LOGIC ---
 def get_maintenance_flag(run_hours: float) -> Optional[str]:
     if run_hours >= MAINTENANCE_CRITICAL_HOURS:
         return "CRITICAL"
@@ -113,7 +95,7 @@ def get_vibration_flag(vibration_hz: Optional[float]) -> Optional[str]:
     return None
 
 
-# --- 4. KAFKA CONSUMER ---
+# --- KAFKA CONSUMER ---
 def run_consumer(
     bootstrap_servers: str = "localhost:9092",
     group_id: str = "sensor-consumer-group",
