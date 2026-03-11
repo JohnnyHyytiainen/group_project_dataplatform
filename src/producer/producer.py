@@ -46,7 +46,7 @@ for x in range(NUM_MACHINES):
         # Ger våra maskiner(motorer) en starttid i det förflutna. Våra sensorer började mäta 2006.
         "current_time": fake.date_time_between(start_date=datetime(2006, 1, 1), end_date=datetime.now()),
         # Genererar en slumpmässig mätarställning från start
-        "run_hours": round(random.uniform(10.0, 5000.0), 1)
+        "run_hours": round(random.uniform(10.0, 500.0), 1)
     })
 
 try:
