@@ -1,0 +1,25 @@
+erDiagram
+    STAGING_SENSOR_DATA ||--o{ SILVER_SENSOR_DATA : "extract, clean & load"
+    SILVER_SENSOR_DATA ||--o{ PROCESSED_JSONL_FILE : "append new (Delta Load)"
+
+    STAGING_SENSOR_DATA {
+      text raw_data "Source of Truth (Bronze)"
+    }
+
+    PROCESSED_JSONL_FILE {
+      text json_payload "data/processed/cleaned_sensor_data.jsonl"
+    }
+
+    SILVER_SENSOR_DATA {
+      int silver_id PK "SERIAL"
+      text engine_id "UK - Nullable (NULLS NOT DISTINCT)"
+      text appliance_type "Cleaned string"
+      timestamp timestamp "UK"
+      float run_hours
+      text location "Default: Unknown Location"
+      float rpm "Nullable (Sensor offline)"
+      float engine_temp "Nullable"
+      float vibration_hz "Nullable"
+      boolean is_valid "True if engine_id exists"
+      timestamp silver_processed_at "DEFAULT CURRENT_TIMESTAMP"
+    }

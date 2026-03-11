@@ -1,0 +1,66 @@
+erDiagram
+    SILVER_SENSOR_DATA ||--o{ FACT_SENSOR_READING : "Filter: is_valid = TRUE"
+    
+    DIM_ENGINE ||--o{ FACT_SENSOR_READING : engine
+    DIM_LOCATION ||--o{ FACT_SENSOR_READING : location
+    DIM_DATE ||--o{ FACT_SENSOR_READING : date
+    DIM_APPLIANCE ||--o{ FACT_SENSOR_READING : appliance
+
+    DIM_ENGINE ||--o{ FACT_ENGINE_DAILY : engine
+    DIM_DATE ||--o{ FACT_ENGINE_DAILY : date
+
+    DIM_ENGINE {
+      int engine_sk PK
+      text engine_id UK
+    }
+
+    DIM_LOCATION {
+      int location_sk PK
+      text location UK
+    }
+
+    DIM_DATE {
+      int date_sk PK
+      date calendar_date UK
+      int year
+      int month
+      int day
+    }
+
+    DIM_APPLIANCE {
+      int appliance_sk PK
+      text appliance_type UK
+    }
+
+    FACT_SENSOR_READING {
+      bigint reading_id PK
+      int engine_sk FK
+      int location_sk FK
+      int date_sk FK
+      int appliance_sk FK
+
+      timestamp event_ts
+      float run_hours
+      float rpm
+      float engine_temp
+      float vibration_hz
+
+      boolean maintenance_warning "Calculated in Gold (>4000h)"
+      boolean temp_warning "Calculated in Gold (>101C)"
+      boolean rpm_warning "Calculated in Gold (>1600)"
+      boolean vibration_warning "Calculated in Gold (>10hz)"
+
+      int silver_id UK "Lineage back to Silver"
+    }
+
+    FACT_ENGINE_DAILY {
+      bigint engine_daily_id PK
+      int engine_sk FK
+      int date_sk FK
+
+      float max_engine_temp
+      float avg_rpm
+      float max_vibration
+      float max_run_hours
+      int warnings_total
+    }
