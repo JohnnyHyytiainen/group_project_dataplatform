@@ -105,25 +105,43 @@ uv run python -m src.producer.producer
 
 ### 🥉 Bronze Layer (Raw Ingestion) - *Completed*
 
-* [x] Stateful data generation (`producer.py`)
+* [x] Stateful data generation with "chaos injection"(creating mess on purpose) (`producer.py`)
 * [x] Kafka topic streaming
-* [x] Pydantic validation & DLQ routing (`consumer.py`)
-* [x] Raw `TEXT` storage in PostgreSQL
+* [x] Real-time Pydantic monitoring & DLQ routing (Failing gracefully into `faulty_events`) (`worker.py`)
+* [x] Raw TEXT storage in PostgreSQL (`staging_sensor_data`) acting as our Single Source of Truth.
+* [x] Stable handling of databas connection and environmental variables
+* [x] Data Modeling for entire Database design. Bronze -> Silver -> Golden layers  
 
 ### 🥈 Silver Layer (Cleansed & Conformed) - *In Progress*
 
-* [ ] Pandas ETL script to extract `raw_data` from the Bronze staging table.
-* [ ] Clean injected formatting noise (e.g., `.strip()` whitespaces, standardize casing).
-* [ ] Handle missing values (Imputation) and drop duplicate events.
-* [ ] Load cleansed data into a strongly typed `silver_sensor_data` table.
+* [ ] Pure Python ETL batch job to extract raw_data from the Bronze staging table.  
+
+* [ ] Clean injected formatting noise (.strip() whitespaces, standardize casing) without relying on Pandas.
+
+* [ ] Soft-filtering: Handle missing engine_id by setting an is_valid = False flag instead of dropping data.
+
+* [ ] Idempotent Delta Load into a strongly typed `silver_sensor_data` PostgreSQL table (`ON CONFLICT DO NOTHING` utilizing `NULLS NOT DISTINCT`).
+
+* [ ] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
 
 ### 🥇 Gold Layer (Curated & Aggregated) - *Planned*
 
-* [ ] SQL/Pandas aggregations for business KPIs.
-* [ ] Calculate delta run hours and rolling average temperatures.
-* [ ] Flag engines requiring immediate predictive maintenance.
+* [ ] Design and implement a Dimensional Model / Star Schema (`FACT_SENSOR_READING`, `DIM_ENGINE`, `DIM_DATE`, etc)
 
----
+* [ ] Strict SQL transformations (e.g, extracting only `WHERE is_valid = TRUE`).
+
+* [ ] Calculate business KPIs and hard threshold flags (Maintenance, Temperature, Vibration warnings) directly in SQL.
+
+* [ ] Build aggregated daily tables (`FACT_ENGINE_DAILY`) for optimized dashboard querying.
+
+### 🚀 API Layer (Serving) - Planned
+* [ ] Build a FastAPI backend to serve curated data from the Medallion architecture.
+
+* [ ] Implement pagination, connection pooling, and dynamic query filtering.
+
+* [ ] Protect endpoints with Pydantic response models and comprehensive unit testing.
+
+--- 
 
 ## Documentation
 
