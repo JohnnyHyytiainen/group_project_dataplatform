@@ -47,3 +47,17 @@
 - Generate new data for db with improved params
     - Done
 ```
+
+## Wednesday 11/03-2026
+**Goals for today:**
+```text
+- Update random hours run generation from 5000 to 500. Unreasonably high to expect first sensor appearance to be able to show 5k hours.
+    - Done
+
+- Updated docs folder with brief docs on how to sync your postgres DB to contain the same data as everyone elses. Brief run guide on how to use the replayer.py script
+    - Done
+
+- Add silver layer ERDs + gold layer ERDs
+    - Ongoing
+
+```
