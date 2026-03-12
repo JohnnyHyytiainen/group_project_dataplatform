@@ -87,7 +87,7 @@ def get_sensor_data(
         params.append(appliance_type)
 
     if is_valid is not None:
-        base_query += " AND is_valud = %s"
+        base_query += " AND is_valid = %s"
         params.append(is_valid)
 
     base_query += " ORDER BY timestamp DESC LIMIT %s OFFSET %s"
