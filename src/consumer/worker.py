@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Business rule thresholds -> ALL_CAPS = constants, change in one place only
+# Business rule thresholds — ALL_CAPS = constants, change in one place only
 MAINTENANCE_WARNING_HOURS = 4000
 MAINTENANCE_CRITICAL_HOURS = 5000
 ENGINE_TEMP_WARNING_C = 101.0
@@ -31,16 +31,16 @@ def setup_database() -> None:
     """Creates Bronze (staging) and Dead Letter Queue tables if they don't exist."""
     with psycopg.connect(DB_DSN) as conn:
         with conn.cursor() as cur:
-            # Bronze table: raw JSON stored as TEXT -> cleaning happens in Silver layer
+            # Bronze table: raw JSON stored as TEXT — cleaning happens in Silver layer
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS staging_sensor_data (
                     id               SERIAL PRIMARY KEY,
                     raw_data         TEXT NOT NULL,
-                    maintenance_flag TEXT,
-                    temp_flag        TEXT,
-                    rpm_flag         TEXT,
-                    vibration_flag   TEXT,
+                    maintenance_status   TEXT,
+                    temperature_status   TEXT,
+                    rpm_status           TEXT,
+                    vibration_status     TEXT,
                     ingested_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 );
             """
@@ -62,12 +62,12 @@ def setup_database() -> None:
             )
 
 
-# --- FLAG LOGIC ---
-# Each function checks one sensor value and returns WARNING, CRITICAL, or None
+# --- HEALTH STATUS LOGIC ---
+# Each function checks one sensor value and returns an operational status: WARNING, CRITICAL, or None
 # Optional[float] = value can be a float or None (sensor offline)
 
 
-def get_maintenance_flag(run_hours: float) -> Optional[str]:
+def get_maintenance_status(run_hours: float) -> Optional[str]:
     if run_hours >= MAINTENANCE_CRITICAL_HOURS:
         return "CRITICAL"
     elif run_hours >= MAINTENANCE_WARNING_HOURS:
@@ -75,7 +75,7 @@ def get_maintenance_flag(run_hours: float) -> Optional[str]:
     return None
 
 
-def get_temp_flag(engine_temp: Optional[float]) -> Optional[str]:
+def get_temperature_status(engine_temp: Optional[float]) -> Optional[str]:
     if engine_temp is None:
         return None
     elif engine_temp >= ENGINE_TEMP_WARNING_C:
@@ -83,7 +83,7 @@ def get_temp_flag(engine_temp: Optional[float]) -> Optional[str]:
     return None
 
 
-def get_rpm_flag(rpm: Optional[float]) -> Optional[str]:
+def get_rpm_status(rpm: Optional[float]) -> Optional[str]:
     if rpm is None:
         return None
     elif rpm > RPM_MAX_NORMAL:
@@ -91,7 +91,7 @@ def get_rpm_flag(rpm: Optional[float]) -> Optional[str]:
     return None
 
 
-def get_vibration_flag(vibration_hz: Optional[float]) -> Optional[str]:
+def get_vibration_status(vibration_hz: Optional[float]) -> Optional[str]:
     if vibration_hz is None:
         return None
     elif vibration_hz > VIBRATION_MAX_NORMAL:
@@ -120,7 +120,7 @@ def run_consumer(
     try:
         setup_database()
 
-        # Single long-lived DB connection for the entire session
+        # DB connection for the entire session
         with psycopg.connect(DB_DSN) as conn:
             with conn.cursor() as cur:
                 logger.info("Bronze layer open. Press CTRL+C to stop.\n")
@@ -129,27 +129,27 @@ def run_consumer(
                     msg = consumer.poll(timeout=1.0)
 
                     if msg is None:
-                        # No message arrived within timeout -> keep waiting
+                        # No message arrived within timeout —> keep waiting
                         continue
                     if msg.error():
                         if msg.error().code() == KafkaError._PARTITION_EOF:
-                            # Reached end of partition -> not an error, keep going
+                            # Reached end of partition —> not an error, keep going
                             continue
                         else:
                             raise KafkaException(msg.error())
 
-                    # Decode raw bytes before any parsing — needed for DLQ if things go wrong
+                    # Decode raw bytes before any parsing —> needed for DLQ if things go wrong
                     raw_json_string = msg.value().decode("utf-8")
 
                     try:
                         # Step 1: Parse JSON — if this fails, message is unreadable garbage
                         raw_dict = json.loads(raw_json_string)
 
-                        # Step 2: Default flags to None —> ensures they exist even if Pydantic fails
-                        maintenance_flag = None
-                        temp_flag = None
-                        rpm_flag = None
-                        vibration_flag = None
+                        # Step 2: Default statuses to None — ensures they exist even if Pydantic fails
+                        maintenance_status = None
+                        temperature_status = None
+                        rpm_status = None
+                        vibration_status = None
 
                         # Step 3: Pydantic validation — isolated in its own try/except
                         # Pydantic is a WARNING SYSTEM here, not a gatekeeper
@@ -157,33 +157,35 @@ def run_consumer(
                         try:
                             event = SensorEvent(**raw_dict)
 
-                            # Calculate flags from validated event
-                            maintenance_flag = get_maintenance_flag(event.run_hours)
-                            temp_flag = get_temp_flag(event.engine_temp)
-                            rpm_flag = get_rpm_flag(event.rpm)
-                            vibration_flag = get_vibration_flag(event.vibration_hz)
+                            # Calculate health statuses from validated event
+                            maintenance_status = get_maintenance_status(event.run_hours)
+                            temperature_status = get_temperature_status(
+                                event.engine_temp
+                            )
+                            rpm_status = get_rpm_status(event.rpm)
+                            vibration_status = get_vibration_status(event.vibration_hz)
 
-                            # Log any triggered flags in real time
-                            if maintenance_flag:
+                            # Log any triggered health statuses in real time
+                            if maintenance_status:
                                 logger.warning(
-                                    f"[MAINTENANCE {maintenance_flag}] engine={event.engine_id} | run_hours={event.run_hours}h"
+                                    f"[MAINTENANCE {maintenance_status}] engine={event.engine_id} | run_hours={event.run_hours}h"
                                 )
-                            if temp_flag:
+                            if temperature_status:
                                 logger.warning(
-                                    f"[TEMPERATURE {temp_flag}] engine={event.engine_id} | temp={event.engine_temp}°C"
+                                    f"[TEMPERATURE {temperature_status}] engine={event.engine_id} | temp={event.engine_temp}°C"
                                 )
-                            if rpm_flag:
+                            if rpm_status:
                                 logger.warning(
-                                    f"[RPM {rpm_flag}] engine={event.engine_id} | rpm={event.rpm}"
+                                    f"[RPM {rpm_status}] engine={event.engine_id} | rpm={event.rpm}"
                                 )
-                            if vibration_flag:
+                            if vibration_status:
                                 logger.warning(
-                                    f"[VIBRATION {vibration_flag}] engine={event.engine_id} | vibration={event.vibration_hz}hz"
+                                    f"[VIBRATION {vibration_status}] engine={event.engine_id} | vibration={event.vibration_hz}hz"
                                 )
 
                         except ValidationError as e:
-                            # Pydantic rejected it (e.g. missing engine_id, format_noise)
-                            # Record in faulty_events for tracking —> data still goes to Bronze
+                            # Pydantic rejected it (e.g. missing engine_id)
+                            # Record in faulty_events for tracking — data still goes to Bronze
                             cur.execute(
                                 "INSERT INTO faulty_events (raw_data, error_reason) VALUES (%s, %s)",
                                 (raw_json_string, str(e)),
@@ -192,20 +194,20 @@ def run_consumer(
                                 f"PYDANTIC WARNING (still saving to Bronze): {str(e).splitlines()[0]}"
                             )
 
-                        # Step 4: Always save to Bronze —> this is the Medallion architecture
-                        # Raw JSON preserved as it is -> Silver layer handles all cleaning
+                        # Step 4: Always save to Bronze — this is the Medallion architecture
+                        # Raw JSON preserved as it is, Silver layer handles all cleaning
                         cur.execute(
                             """
                             INSERT INTO staging_sensor_data
-                                (raw_data, maintenance_flag, temp_flag, rpm_flag, vibration_flag)
+                                (raw_data, maintenance_status, temperature_status, rpm_status, vibration_status)
                             VALUES (%s, %s, %s, %s, %s)
                             """,
                             (
                                 raw_json_string,
-                                maintenance_flag,
-                                temp_flag,
-                                rpm_flag,
-                                vibration_flag,
+                                maintenance_status,
+                                temperature_status,
+                                rpm_status,
+                                vibration_status,
                             ),
                         )
 
@@ -221,14 +223,14 @@ def run_consumer(
                         logger.error(f"REJECTED (malformed JSON): {e}")
 
                     except Exception as e:
-                        # Unexpected error —> also goes to DLQ, logged as ERROR
+                        # Unexpected error — also goes to DLQ, logged as ERROR
                         cur.execute(
                             "INSERT INTO faulty_events (raw_data, error_reason) VALUES (%s, %s)",
                             (raw_json_string, str(e)),
                         )
                         logger.error(f"REJECTED (unexpected error): {e}")
 
-                    # Commit DB first, then Kafka — if DB fails, Kafka redelivers the message
+                    # Commit DB first, then Kafka —> if DB fails, Kafka redelivers the message
                     conn.commit()
                     consumer.commit(message=msg)
 
