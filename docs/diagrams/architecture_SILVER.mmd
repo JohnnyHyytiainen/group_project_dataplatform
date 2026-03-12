@@ -1,0 +1,23 @@
+graph TD
+    A[(PostgreSQL Bronze<br/>staging_sensor_data)] -->|1. Extract Raw Data| B[Batch Orchestrator<br/>etl_job.py]
+    
+    B -->|2. Pass Dict| C{Data Cleaner<br/>cleaner.py}
+    
+    C -->|3a. Type Casting & Whitespace fix| D[Apply Business Logic]
+    C -->|3b. Soft Filter| D
+    
+    D -->|is_valid flaggat| E[Idempotent Upsert<br/>ON CONFLICT DO NOTHING]
+    
+    E -->|4. Insert Data| F[(PostgreSQL Silver<br/>silver_sensor_data)]
+    
+    F -.->|5. RETURNING silver_id<br/> | G[Curated Data Lake<br/>cleaned_sensor_data.jsonl]
+
+    classDef db fill:#222,stroke:#6c757d,stroke-width:8px;
+    classDef script fill:#111,stroke:#007bff,stroke-width:3px;
+    classDef logic fill:#222,stroke:#ffc107,stroke-width:3px;
+    classDef file fill:#333,stroke:#28a745,stroke-width:3px;
+
+    class A,F db;
+    class B script;
+    class C,D,E logic;
+    class G file;
