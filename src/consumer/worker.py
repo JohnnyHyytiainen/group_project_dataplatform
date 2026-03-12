@@ -101,7 +101,7 @@ def get_vibration_status(vibration_hz: Optional[float]) -> Optional[str]:
 
 # --- KAFKA CONSUMER ---
 def run_consumer(
-    bootstrap_servers: str = "localhost:19092",
+    bootstrap_servers: str = "localhost:9092",
     group_id: str = "sensor-consumer-group",
     topic: str = "sensor_data_stream",
 ) -> None:
