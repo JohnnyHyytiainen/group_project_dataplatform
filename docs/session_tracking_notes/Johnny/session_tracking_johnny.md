@@ -79,7 +79,12 @@
 - Add dependency for psycopg-pool with - uv add psycopg-pool
     - Done
 
-- Start working on API endpoints + testing for API
-    - Ongoing
-    
+Add database connection pool for API
+    - Done
+
+- Start working on basic API endpoints 
+    - Done
+
+- Write module overview docs for API and connection pooling (docs/module_overview_api_core.md)
+    - Done
 ```
