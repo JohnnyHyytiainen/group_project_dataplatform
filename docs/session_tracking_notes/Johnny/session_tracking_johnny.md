@@ -74,6 +74,12 @@
     - Done
 
 - Plan for user stories and workload for silver.
-    - 
+    - Done
+
+- Add dependency for psycopg-pool with - uv add psycopg-pool
+    - Done
+
+- Start working on API endpoints + testing for API
+    - Ongoing
     
 ```

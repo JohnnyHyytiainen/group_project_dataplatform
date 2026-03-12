@@ -1,1 +1,0 @@
-# script för models / schemas
