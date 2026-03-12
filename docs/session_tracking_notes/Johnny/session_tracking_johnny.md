@@ -58,6 +58,22 @@
     - Done
 
 - Add silver layer ERDs + gold layer ERDs
-    - Ongoing
+    - Done
+```
 
+## Thursday 12/03-2026
+**Goals for today:**
+```text
+- Update entire workflow architecture for silver layer in mermaid.
+    - Done
+
+- Hold stand-up and explain architecture choices. Emphasis on idempotency, being able to run scripts over and over and over again.
+    - Done
+
+- Show templates on silver layer scripts, explain most important rows that CANNOT be changed. Rest can be changed how ever coder seems fit.
+    - Done
+
+- Plan for user stories and workload for silver.
+    - 
+    
 ```

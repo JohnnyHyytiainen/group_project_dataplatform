@@ -38,3 +38,13 @@
 - Divide upp script into separate functions for everyone to push something code worthy to repo
     - Done
 ```
+
+## Thursday 12/03-2026
+**Goals for today:**
+```
+- Meet up with Gavin and intro to the group.
+    - Done
+
+- Sprint review with group
+    - Done
+- 

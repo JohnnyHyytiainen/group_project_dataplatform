@@ -1,0 +1,18 @@
+graph TD
+    A[IoT Fleet Simulator<br/>producer.py] -->|JSONL Payload| B(Apache Kafka<br/>sensor_data_stream)
+    B --> C[Quality Gate<br/>consumer.py]
+    
+    C -->|Pydantic validation| D{Approved?}
+    
+    D -->|Yes: Dirty & Flags| E[(PostgreSQL<br/>staging_sensor_data)]
+    D -->|No: Missing ID / Invalid| F[(PostgreSQL<br/>faulty_events)]
+    
+    classDef producer fill:#000,stroke:#28a745,stroke-width:3px;
+    classDef broker fill:#000,stroke:#ffc107,stroke-width:3px;
+    classDef consumer fill:#000,stroke:#007bff,stroke-width:3px;
+    classDef db fill:#000,stroke:#6c757d,stroke-width:8px;
+    
+    class A producer;
+    class B broker;
+    class C consumer;
+    class E,F db;
