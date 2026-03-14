@@ -5,6 +5,7 @@ import psycopg
 from psycopg.rows import dict_row
 from typing import Optional, List, Any
 from datetime import datetime
+import logging
 
 
 # Importera  pool-logik
@@ -14,6 +15,7 @@ from src.schemas.api_schemas import PaginatedSensorResponse
 # db_setup.py innehåller ej larm-flaggor (maintenance_flags etc)
 # Logik byggs runt is_valid och appliance_type istället.
 
+logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -111,5 +113,8 @@ def get_sensor_data(
             "data": rows
         }
     except Exception as e:
+        # NYTT: Istället för att krascha tyst loggar jag nu VAD felet är/var.
+        # Visar klart och tydligt i terminal output vad som är fel. T.ex, 'appliance_type' saknas i DB etc.
+        logger.error(f"Database query failed in /api/v1/sensors: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
 
