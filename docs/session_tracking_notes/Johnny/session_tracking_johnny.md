@@ -93,10 +93,21 @@ Add database connection pool for API
 
 - Refactor get_db_connection(): function in db_conn_pool script. Faulty logic needs fixing.
 - Issue: Trying to YIELD from within a with statement. With psycopg_pool it is better and safer to ask the pool for a connection directly, otherwise FastAPI may have problems closing the connection asynchronously.
-    - **Done**
+
     - *Refactored for safety. Now gets connection manually with a "stricter" try/finally block of code.*
+        - **Done**
 
 - Refactor and update main.py, specifically /api/vi/sensors endpoint for better error handling.
 - Issue: Did not have any way of logging errors for troubleshooting. Updated main.py /api/vi/sensors endpoint to contain an error logger. -> Improves future troubleshooting with endpoint.
-    - **Done**
     - *Refactored for easier troubleshooting(Thank you Johnny from the past. /// Future Johnny)*
+        - **Done**
+
+
+- Update documentation for bronze module overview. Now contains: Complete module overview that includes:
+    * Producer script
+    * Consumer script
+    * Replayer script
+    * db_config script
+    * sensor_schema script
+        - Done
+        

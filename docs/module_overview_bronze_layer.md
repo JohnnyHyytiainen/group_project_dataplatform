@@ -1,6 +1,12 @@
 # Module Overview: Bronze Layer (Ingestion & Staging)
-- producer.py **(Johnny)**
-- consumer.py **(Indira)**
+*Written and updated 14/03/2026*
+**TODO: update and translate to english before hand in**
+
+- [Producer](../src/producer/producer.py)
+- [Consumer](../src/consumer/worker.py)
+- [Replayer](../src/producer/replayer.py)
+- [Global Schema](../src/schemas/sensor_schema.py)
+- [Database config](../src/config/db_config.py)
 
 ## Sammanfattning:
 
@@ -57,7 +63,7 @@ Extern data kan orsaka problem som gör att planeringen för varje sprint ej hå
 
 ## Komponentbeskrivning:
 
-### 1. Data Generator (`producer.py` -> Johnny)
+### 1. Data Generator (`producer.py`)
 
 Den här modulen agerar som vår Source of Data. För att simulera en verklig IoT-miljö använder vi inte helt slumpmässig data vid varje iteration, utan vi har byggt en **Stateful Fleet Simulator**.
 
@@ -66,18 +72,30 @@ Den här modulen agerar som vår Source of Data. För att simulera en verklig Io
 * **Tidslinjen:** Skriptet loopar genom flottan och "spolar fram tiden" (1–12 timmar åt gången) för att säkerställa att `run_hours` och `timestamp` alltid ökar logiskt för varje `engine_id`. Det här möjliggör historisk analys av slitage.
 
 * **Chaos Engineering:** Skriptet injicerar medvetet tre typer av avvikelser i dataströmmen (ca 20-40% sannolikhet som **vi** bestämmer):
-* *Tekniska Fel:* Saknade IDn, offline-sensorer, `Null`-värden.
-* *Affärslarm:* Extrema temperaturer, övervarvande motorer (RPM).
-* *ETL-Smuts:* Formateringsfel (whitespaces i siffror `"  1450.5  "`) och inkonsekventa kategorinamn `"WASHING MACHINE "`. Detta simuleras för att testa vårt Silver-lagers tvättkapacitet.
 
+* *Tekniska Fel:* Saknade IDn, offline-sensorer, `Null`-värden.
+
+* *Affärslarm:* Extrema temperaturer, övervarvande motorer (RPM).
+
+* *ETL-Smuts:* Formateringsfel (whitespaces i siffror `"  1450.5  "`) och inkonsekventa kategorinamn `"WASHING MACHINE "`. Detta simuleras för att testa vårt Silver-lagers tvättkapacitet.
 
 * **Cold Storage:** All data loggas även till en lokal JSONL-fil (`raw_sensor_data.jsonl`) som en failsafe och vår **Source of Truth**.
 
+--- 
+
+### 1.5. Demo & Test Engine (`replayer.py`)
+
+Ett kompletterande skript till vår Producer. Istället för att generera *ny* syntetisk data, läser `replayer.py` den historiska datan från vår Data Lake (`raw_sensor_data.jsonl`) och strömmar tillbaka den in i Kafka. 
+
+* **Syfte:** Värdefullt för demosyften och felsökning. Det gör att vi kan spela upp exakt samma händelseförlopp flera gånger om för att testa att vår Consumer och Silver lagrets tvätt beter sig konsekvent.
+
+---
+
 ### 2. Message Broker (Apache Kafka)
 
-Datan publiceras till Kafka-topicen `sensor_data_stream`. Kafka säkerställer att vi kan hantera plötsliga spikar i datavolymen utan att databasen överbelastas, samt att Consumer(Indira) och Producer(Johnny) är helt frikopplade (Decoupled).
+Datan publiceras till Kafka-topicen `sensor_data_stream`. Kafka säkerställer att vi kan hantera plötsliga spikar i datavolymen utan att databasen överbelastas, samt att Consumer och Producer är helt frikopplade (Decoupled).
 
-### 3. Quality Gate & Ingestion (`consumer.py` -> Indira)
+### 3. Quality Gate & Ingestion (`consumer.py`)
 
 Consumern prenumererar på Kafka-topicen och agerar 'bouncer' innan datan når databasen.
 
@@ -88,7 +106,25 @@ Consumern prenumererar på Kafka-topicen och agerar 'bouncer' innan datan når d
 * **Routing:** *Godkänd data:* Skickas till Staging tabellen.
 * *Kritisk / Korrupt data:* Fångas upp av Exception-hanteringen och skickas till en Dead Letter Queue **(DLQ)**
 
+--- 
 
+### 3.5. Data Contract (`sensor_schema.py`)
+Denna fil innehåller vår Pydantic modell `SensorEvent`. Detta är själva 'kontraktet' för hur en giltig IoT-payload får se ut.
+
+* **Separation of Concerns:** Genom att bryta ut modellen i en egen fil kan vi återanvända samma valideringsregler i både Bronze (Quality Gate), Silver (om vi behöver re-validera), och senare i API'et utan att duplicera kod (DRY - Don't Repeat Yourself).
+
+* **Regler:** Definierar strikta gränser, t.ex att `run_hours` måste vara mellan 0.0 och 20000.0, och hanterar `Optional`-fält (t.ex när en sensor går offline och skickar `None`)
+
+---
+
+### 3.6. Configuration Management (`db_config.py`)
+Ett centraliserat skript för att hantera databasuppkopplingar.
+
+* **Säkerhet:** Hämtar inloggningsuppgifter (användare, lösenord, port) från dolda `.env`-filer istället för att hårdkoda dem i våra script.
+
+* **Skalbarhet:** Om vi byter databas (t.ex flyttar från lokal Postgres till AWS RDS) behöver vi bara uppdatera anslutningssträngen (`DB_DSN`) på ett enda ställe, så uppdateras alla lager (Bronze, Silver, Gold, API) automatiskt.
+
+---
 
 ### 4. Storage (PostgreSQL)
 
@@ -99,5 +135,10 @@ Vi använder två separata tabeller i vår databas för Bronze lagret:
 * **`faulty_events` (Dead Letter Queue):** Hit skickas data som misslyckades i Pydantic-valideringen (t.ex saknar `engine_id` eller har fel format som kraschar JSON-parsingen) Här sparas även felmeddelandet från Pydantic för framtida felsökning.
 
 ---
+### 5. Visuals över hela flödet av data samt ERD.
+- Detta visar flödet av data över bronze lagret:
 
-![Visualisering av arkitektur och dataflödet](diagrams/architecture_flow.png)
+![Visualisering av flödet i Bronze layer](diagrams/architecture_BRONZE.png)
+
+- Detta är vår PDM vi jobbar efter i bronze lagret:
+![Bronze layer ERD](diagrams/bronze_layer/bronze_layer_PDM.png)
