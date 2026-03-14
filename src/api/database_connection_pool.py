@@ -1,4 +1,4 @@
-# Connection pool. Se docs/connection_pooling_API_Core.md för docs
+# Connection pool. Se docs/module_overview_api_core.md för docs
 from psycopg_pool import ConnectionPool
 from src.config.db_config import get_dsn
 import logging
@@ -24,13 +24,21 @@ def close_db_pool():
         logger.info("Closing the DB connection pool..")
         pool.close()
 
-# Hämtar databas connection
+# Hämtar databas connection (REFACTORED för säkerhet!!)
 def get_db_connection():
     """
-    Dependency Injection for FastAPI
-    Borrows a connection from the pool and returns it when the call is done.
+    Dependency Injection for FastAPI.
+    Borrows a connection from the pool manually and guarantees via finally that it will be returned,
+    regardless if the API crashes.
     """
     if pool is None:
         raise RuntimeError("Database pool did not initialize.")
-    with pool.connection() as conn:
+    # Ber poolen ge mig en specifik anslutning
+    conn = pool.getconn()
+    try:
+        # Yield innebär: Stanna upp här, skicka conn till endpointen i main.py
         yield conn
+    finally:
+        # När endpoint är klar eller kraschar fortsätter koden här.
+        # Jag TVINGAR tillbaka connection i poolen, det här förhindrar memory leaks.
+        pool.putconn(conn)
