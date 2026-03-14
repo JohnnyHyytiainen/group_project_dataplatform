@@ -12,6 +12,7 @@ dependencies = [
     "httpx>=0.28.1",
     "lxml>=6.0.2",
     "pandas>=3.0.1",
+    "psycopg-pool>=3.3.0",
     "psycopg[binary]>=3.3.3",
     "pydantic-settings>=2.13.1",
     "sqlalchemy>=2.0.47",

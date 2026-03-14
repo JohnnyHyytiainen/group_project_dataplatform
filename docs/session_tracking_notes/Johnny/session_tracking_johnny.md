@@ -74,6 +74,17 @@
     - Done
 
 - Plan for user stories and workload for silver.
-    - 
-    
+    - Done
+
+- Add dependency for psycopg-pool with - uv add psycopg-pool
+    - Done
+
+Add database connection pool for API
+    - Done
+
+- Start working on basic API endpoints 
+    - Done
+
+- Write module overview docs for API and connection pooling (docs/module_overview_api_core.md)
+    - Done
 ```
