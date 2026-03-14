@@ -51,3 +51,75 @@ def override_get_db_connection():
 
 
 app.dependency_overrides[get_db_connection] = override_get_db_connection
+
+# --- TESTS ---
+
+
+def test_read_root():
+    """Root endpoint should return 200 and a welcome message."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Message" in response.json()
+
+
+def test_health_check_db_connected():
+    """Mock DB always works — health should report connected."""
+    response = client.get("/health")
+    data = response.json()
+
+    assert data["status"] == "healthy"
+    assert data["database"] == "connected"
+
+
+def test_get_sensor_data_returns_200():
+    """Sensor endpoint should return 200."""
+    response = client.get("/api/v1/sensors")
+    assert response.status_code == 200
+
+
+def test_get_sensor_data_schema_validation():
+    """Pydantic must accept the mock row — all fields correct types."""
+    response = client.get("/api/v1/sensors")
+    data = response.json()
+
+    row = data["data"][0]
+    assert row["silver_id"] == 1
+    assert row["engine_id"] == "test-uuid-123"
+    assert row["appliance_type"] == "washing_machine"
+    assert row["run_hours"] == 100.5
+    assert row["is_valid"] is True  # --- TESTS ---
+
+
+def test_read_root():
+    """Root endpoint should return 200 and a welcome message."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "Message" in response.json()
+
+
+def test_health_check_db_connected():
+    """Mock DB always works — health should report connected."""
+    response = client.get("/health")
+    data = response.json()
+
+    assert data["status"] == "healthy"
+    assert data["database"] == "connected"
+
+
+def test_get_sensor_data_returns_200():
+    """Sensor endpoint should return 200."""
+    response = client.get("/api/v1/sensors")
+    assert response.status_code == 200
+
+
+def test_get_sensor_data_schema_validation():
+    """Pydantic must accept the mock row — all fields correct types."""
+    response = client.get("/api/v1/sensors")
+    data = response.json()
+
+    row = data["data"][0]
+    assert row["silver_id"] == 1
+    assert row["engine_id"] == "test-uuid-123"
+    assert row["appliance_type"] == "washing_machine"
+    assert row["run_hours"] == 100.5
+    assert row["is_valid"] is True
