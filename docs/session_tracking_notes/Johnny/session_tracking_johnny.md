@@ -111,3 +111,18 @@ Add database connection pool for API
     * sensor_schema script
         - Done
         
+
+## Sunday 15/03-2026
+**Goals for today:**
+- Setup docker-compose, Dockerfile and containerize EVERYTHING.
+    - producer
+    - consumer
+    - kafka
+    - postgres db
+    - api
+        - **DONE**
+
+- Written small module overview for orchestration with docker.
+    - **DONE**
+
+    

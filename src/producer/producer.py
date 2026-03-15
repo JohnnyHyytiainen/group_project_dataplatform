@@ -1,6 +1,6 @@
 # Faker scriptet
-import json
 # Timedelta behövs för att kunna "spola fram tiden" i vår "flotta" av sensorer
+import json
 from datetime import datetime, timedelta
 import time
 import random
@@ -8,14 +8,17 @@ import os
 from faker import Faker
 from confluent_kafka import Producer
 
+# 1. Hämta adressen från Docker (eller använd localhost om vi kör utanför Docker)
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
 # Konfigurera Faker och vår Kafka klient
 fake = Faker()
 # Berätta för producern vart vägen börjar (Localhost eftersom skriptet körs på min dator)
-conf = {'bootstrap.servers': 'localhost:9092'}
+conf = {'bootstrap.servers': KAFKA_BROKER}
 producer = Producer(conf)
-TOPIC_NAME = "sensor_data_stream"
 # Filen där vi sparar vår Source of Truth (Cold Storage)
+TOPIC_NAME = "sensor_data_stream"
 RAW_DATA_FILE = "data/raw/raw_sensor_data.jsonl"
+
 
 
 # Callback funktion (Kvitto på 'posten')
@@ -131,7 +134,7 @@ try:
             producer.produce(TOPIC_NAME, value=json_payload, callback=delivery_report)
             producer.poll(0)
             # Tidsintervall för att kontrollera hur snabbt data ska genereras
-            time.sleep(0.1)
+            time.sleep(10)
 
 except KeyboardInterrupt:
     print("\nTurning off...")
