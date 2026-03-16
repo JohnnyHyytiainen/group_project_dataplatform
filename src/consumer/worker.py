@@ -1,4 +1,5 @@
 # Kafka consumer — Bronze layer ingestion (Medallion Architecture)
+import os
 import json
 import logging
 import psycopg
@@ -11,6 +12,7 @@ from src.config.db_config import get_dsn
 
 # DB connection string built from .env (Separation of Concerns)
 DB_DSN = get_dsn()
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
 
 # Logging with timestamp and level prefix
 logging.basicConfig(
@@ -101,7 +103,7 @@ def get_vibration_status(vibration_hz: Optional[float]) -> Optional[str]:
 
 # --- KAFKA CONSUMER ---
 def run_consumer(
-    bootstrap_servers: str = "localhost:9092",
+    bootstrap_servers: str = os.getenv("KAFKA_BROKER", "localhost:9092"),
     group_id: str = "sensor-consumer-group",
     topic: str = "sensor_data_stream",
 ) -> None:
@@ -134,6 +136,10 @@ def run_consumer(
                     if msg.error():
                         if msg.error().code() == KafkaError._PARTITION_EOF:
                             # Reached end of partition —> not an error, keep going
+                            continue
+                        elif msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
+                            # NYTT: Topicen finns inte ännu. Vänta snällt på Producern!
+                            logger.info("Topic not found yet. Waiting for Producer to create it...")
                             continue
                         else:
                             raise KafkaException(msg.error())

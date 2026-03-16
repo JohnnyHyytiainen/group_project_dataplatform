@@ -8,11 +8,16 @@ import time
 
 # The Kafka client library
 from confluent_kafka import Producer
+import os
 
 # Configuration
-KAFKA_BROKER = "localhost:9092"
+# 1. Hämta adressen från Docker (eller använd localhost om vi kör utanför Docker)
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
+conf = {'bootstrap.servers': KAFKA_BROKER}
 TOPIC_NAME = "sensor_data_stream"
 RAW_DATA_FILE = "data/raw/raw_sensor_data.jsonl"
+
+
 
 
 # Callback function that Kafka calls automatically after each message is sent

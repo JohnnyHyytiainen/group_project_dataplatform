@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: group_project
+    container_name: live_postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -9,23 +9,64 @@ services:
     ports:
       - "5439:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - live_pg_data:/var/lib/postgresql/data
 
-  # Kafka (KRaft mode)
   kafka:
     image: apache/kafka:latest
-    container_name: group_kafka
+    container_name: live_kafka
     ports:
       - "9092:9092"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      # Säger åt Kafka att lyssna på din lokala dator (localhost)
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:19092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@live_kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+  api:
+    build: .
+    container_name: live_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=postgres 
+      - DB_PORT=5432
+    command: uv run uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    depends_on:
+      - postgres
+
+  consumer:
+    build: .
+    container_name: live_consumer
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - KAFKA_BROKER=kafka:9092
+    command: uv run python -m src.consumer.worker
+    depends_on:
+      - postgres
+      - kafka
+
+  producer:
+    build: .
+    container_name: live_producer
+    environment:
+      - KAFKA_BROKER=kafka:9092
+    command: uv run python -m src.producer.producer
+    depends_on:
+      - kafka
+    volumes:
+      - ./data:/app/data
+
 volumes:
-  pg_data:
+  live_pg_data:
