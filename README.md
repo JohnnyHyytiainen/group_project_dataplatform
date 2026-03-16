@@ -119,13 +119,13 @@ uv run python -m src.producer.producer
 
 ### 🥈 Silver Layer (Cleansed & Conformed) - *In Progress*
 
-* [ ] Pure Python ETL batch job to extract raw_data from the Bronze staging table.  
+* [x] Pure Python ETL batch job to extract raw_data from the Bronze staging table.  
 
 * [ ] Clean injected formatting noise (.strip() whitespaces, standardize casing) without relying on Pandas.
 
-* [ ] Soft-filtering: Handle missing engine_id by setting an is_valid = False flag instead of dropping data.
+* [x] Soft-filtering: Handle missing engine_id by setting an is_valid = False flag instead of dropping data.
 
-* [ ] Idempotent Delta Load into a strongly typed `silver_sensor_data` PostgreSQL table (`ON CONFLICT DO NOTHING` utilizing `NULLS NOT DISTINCT`).
+* [x] Idempotent Delta Load into a strongly typed `silver_sensor_data` PostgreSQL table (`ON CONFLICT DO NOTHING` utilizing `NULLS NOT DISTINCT`).
 
 * [ ] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
 
