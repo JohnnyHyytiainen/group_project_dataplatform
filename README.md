@@ -25,22 +25,27 @@
 ---
 
 ## Project Structure
-
+**TODO: Fill in entire folder tree**
 ```text
 iot_sensor_pipeline/
-├── data/raw/             # Cold storage for generated JSONL source of truth
+├── data/raw/               # Cold storage for generated JSONL source of truth
 │
-├── docs/                 # System Architecture Docs (CDM, LDM, PDM, Overviews)
+├── docs/                   # System Architecture Docs (CDM, LDM, PDM, Overviews)
+│
+├── config/
 │
 ├── src/
 │   │└── producer/
-│   │   └── producer.py   # Fleet simulator and Kafka producer (Bronze)      
+│   │   └── producer.py     # Fleet simulator and Kafka producer (Bronze)    
+│   │   └── replayer.py     # Replays old events from producer for worker to consume (Bronze)
+│   │
 │   └── consumer/      
-│       └── consumer.py   # Quality gate and Postgres ingestion (Bronze)
+│       └── worker.py       # Quality gate and Postgres ingestion (Bronze)
+│ 
 │
-├── .env.example          # Template for environment variables
-├── docker-compose.yml    # Local infrastructure (Kafka, Zookeeper, PostgreSQL)
-├── pyproject.toml        # Dependencies managed by uv
+├── .env.example            # Template for environment variables
+├── docker-compose.yml      # Local infrastructure (Kafka, Zookeeper, PostgreSQL)
+├── pyproject.toml          # Dependencies managed by uv
 └── README.md
 
 ```
@@ -124,7 +129,7 @@ uv run python -m src.producer.producer
 
 * [ ] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
 
-### 🥇 Gold Layer (Curated & Aggregated) - *Planned*
+### 🥇 Gold Layer (Curated & Aggregated) - Planned
 
 * [ ] Design and implement a Dimensional Model / Star Schema (`FACT_SENSOR_READING`, `DIM_ENGINE`, `DIM_DATE`, etc)
 
@@ -134,12 +139,12 @@ uv run python -m src.producer.producer
 
 * [ ] Build aggregated daily tables (`FACT_ENGINE_DAILY`) for optimized dashboard querying.
 
-### 🚀 API Layer (Serving) - Planned
-* [ ] Build a FastAPI backend to serve curated data from the Medallion architecture.
+### 🚀 API Layer (Serving) - *Completed*
+* [x] Build a FastAPI backend to serve curated data from the Medallion architecture.
 
-* [ ] Implement pagination, connection pooling, and dynamic query filtering.
+* [x] Implement pagination, connection pooling, and dynamic query filtering.
 
-* [ ] Protect endpoints with Pydantic response models and comprehensive unit testing.
+* [x] Protect endpoints with Pydantic response models and comprehensive unit testing.
 
 --- 
 
@@ -147,8 +152,8 @@ uv run python -m src.producer.producer
 
 Check the `docs/` folder for comprehensive system architecture details:
 
-* **[Bronze Layer Module Overview](docs/diagrams/architecture_flow.png)**
-* **[Conceptual, Logical, and Physical Data Models](docs/diagrams/)**
-* **[Module overview docs for Bronze layer(in swedish)](docs/module_overview_producer_consumer.md)**
+* **[Bronze Layer Module Overview](docs/diagrams/architecture_BRONZE.png)**
+* **[Conceptual, Logical, and Physical Data Models for Bronze, Silver, Gold layers](docs/diagrams/)**
+* **[Module overview docs for Bronze layer(in swedish)](docs/module_overview_bronze_layer.md)**
 
 ---
