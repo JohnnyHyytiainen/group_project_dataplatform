@@ -126,3 +126,10 @@ Add database connection pool for API
     - **DONE**
 
     
+## Monday 16/03-2026
+**Goals for today:**
+- Get entire orchestration working with docker-compose. Changed config in replayer script, added it to container and now it works as intended. See [Overview](../../module_overview_orchestration.md) docs for explanations.
+    - **DONE**
+
+- Wrote docs on how to update entire DB with new files from replayer.
+    - **Done**

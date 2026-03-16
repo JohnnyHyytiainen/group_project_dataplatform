@@ -27,10 +27,29 @@ För att starta hela Medallion plattformen (Databas, Kafka, Producer, Consumer o
 ```bash
 docker-compose up -d --build
 ```
+
+**För att återskapa ALL data EXAKT som den är i vår cold storage JSONL raw fil. Skriv in detta:**
+```bash
+docker exec -it live_producer uv run python -m src.producer.replayer
+```
+
 För att stoppa och städa upp miljön:
 ```bash
 docker-compose down
 ```
+
+## Efter att ha byggt allting en gång och du ska starta upp nästa gång:
+Du behöver endast skriva detta för att spinna upp containern igen nästa gång.
+```bash
+docker-compose up -d 
+```
+
+## Har vår cold-storage fil fyllts på med mer data som du ej har?
+Kör detta kommando i annan terminal igen som tidigare:
+```bash
+docker exec -it live_producer uv run python -m src.producer.replayer
+```
+
 
 ## Designbeslut
 
