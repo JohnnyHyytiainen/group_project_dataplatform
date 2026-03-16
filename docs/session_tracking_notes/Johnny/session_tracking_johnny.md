@@ -133,3 +133,13 @@ Add database connection pool for API
 
 - Wrote docs on how to update entire DB with new files from replayer.
     - **Done**
+
+- Added sandbox scripts to feat/pair_programming branch together with Indira
+    - **Done**
+
+- Setup for everyone to run the same docker environment in the group.
+    - **Done**
+
+- Database design overview added in docs.
+    - **Done**
+
