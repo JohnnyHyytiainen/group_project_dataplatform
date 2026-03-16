@@ -5,9 +5,17 @@
 # Format: {"felstavning": "korrekt_standard"}
 # ---------------------------------------------------------
 APPLIANCE_MAPPING = {
-    "dish_washer": "dishwasher",
+    "dish_washer"  : "dishwasher",
     "dryingcabiner": "drying_cabinet",
     "dryingcabinet": "drying_cabinet"  # Ifall bindestreck/understreck försvunnit
+}
+
+# Värdegränser för validering av data
+VALID_RANGES = {
+    "rpm"         : (0, 5000),
+    "engine_temp" : (-20, 200),
+    "vibration_hz": (0, 100),
+    "run_hours"   : (0, 100000)
 }
 
 
@@ -19,9 +27,12 @@ def clean_event(raw_event: dict) -> dict:
 
     # 1) Tvätta messy strings som bör vara floats för ALLA sensorer.
     # 1) Skapa lista och loopa igenom den.
+    # 1) Validera värden. Sätter is_valid till false för extrema värden
     numeric_fields = ["rpm", "engine_temp", "vibration_hz", "run_hours"]
+    exreme_value = False
 
     for field in numeric_fields:
+
         if field in cleaned and isinstance(cleaned[field], str):
             try:
                 # Försök göra om sträng till en float och tvätta den.
@@ -29,6 +40,12 @@ def clean_event(raw_event: dict) -> dict:
             except ValueError:
                 # Sätter None value om det är en "SENSOR_OFFLINE" (Blir NULL i DB)
                 cleaned[field] = None
+
+        # Validering
+        min_val, max_val = VALID_RANGES[field]
+
+        if cleaned[field] is not None and not (min_val <= cleaned[field] <= max_val):
+            exreme_value = True
 
     # 2) Tvätta Appliance Type
     if "appliance_type" in cleaned and isinstance(cleaned["appliance_type"], str):
@@ -47,7 +64,8 @@ def clean_event(raw_event: dict) -> dict:
     # =====================================
     # VIKTIGASTE RADEN, IS_VALID FLAGGA. GLÖM EJ!
     # 4) Sätt en is_valid flagga (Vi kräver att alla VALID rows innehåller ett engine_id!!!)
-    cleaned["is_valid"] = bool(cleaned.get("engine_id"))
+    is_valid_engine = bool(cleaned.get("engine_id"))
+    cleaned["is_valid"] = is_valid_engine and not exreme_value
 
     # 5) Returnera cleaned
     return cleaned
