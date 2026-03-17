@@ -8,15 +8,15 @@ class SensorData(BaseModel):
     """Mirrors the silver_sensor_data table —> one row per sensor event."""
 
     silver_id: int
-    engine_id: Optional[str]
-    appliance_type: Optional[str]
-    timestamp: Optional[datetime]
+    engine_id: Optional[str] = None
+    appliance_type: Optional[str] = None
+    timestamp: Optional[datetime] = None
     # must be 0 or above, A machine cannot have negative run hours.
     run_hours: Optional[float] = Field(None, ge=0)
     location: Optional[str] = "Unknown Location"  #  instead of returning null
-    rpm: Optional[float]
-    engine_temp: Optional[float]
-    vibration_hz: Optional[float]
+    rpm: Optional[float] = None
+    engine_temp: Optional[float] = None
+    vibration_hz: Optional[float] = None
     is_valid: bool
     silver_processed_at: datetime
 

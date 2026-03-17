@@ -32,13 +32,15 @@ services:
     container_name: live_api
     ports:
       - "8000:8000"
+    volumes:
+    - ./src:/app/src
     environment:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - DB_HOST=postgres 
       - DB_PORT=5432
-    command: uv run uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+    command: uv run uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       - postgres
 
