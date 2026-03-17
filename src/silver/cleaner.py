@@ -29,7 +29,7 @@ def clean_event(raw_event: dict) -> dict:
     # 1) Skapa lista och loopa igenom den.
     # 1) Validera värden. Sätter is_valid till false för extrema värden
     numeric_fields = ["rpm", "engine_temp", "vibration_hz", "run_hours"]
-    exreme_value = False
+    extreme_value = False
 
     for field in numeric_fields:
 
@@ -45,7 +45,7 @@ def clean_event(raw_event: dict) -> dict:
         min_val, max_val = VALID_RANGES[field]
 
         if cleaned[field] is not None and not (min_val <= cleaned[field] <= max_val):
-            exreme_value = True
+            extreme_value = True
 
     # 2) Tvätta Appliance Type
     if "appliance_type" in cleaned and isinstance(cleaned["appliance_type"], str):
@@ -65,7 +65,7 @@ def clean_event(raw_event: dict) -> dict:
     # VIKTIGASTE RADEN, IS_VALID FLAGGA. GLÖM EJ!
     # 4) Sätt en is_valid flagga (Vi kräver att alla VALID rows innehåller ett engine_id!!!)
     is_valid_engine = bool(cleaned.get("engine_id"))
-    cleaned["is_valid"] = is_valid_engine and not exreme_value
+    cleaned["is_valid"] = is_valid_engine and not extreme_value
 
     # 5) Returnera cleaned
     return cleaned
