@@ -47,4 +47,15 @@
 
 - Sprint review with group
     - Done
-- 
+```
+
+## Wednesday 18/03-2026
+**Goals for today:**
+```
+- Standup online over discord to discuss current progress and prepare as a group for tomorrows sprint demo for previous sprints(sprint 1 and sprint 2)
+
+Topics included:
+    - Progress, current progress and what is done
+    - What needs to get done on our backlog for golden layer.
+    - Sucessful standup
+``` 
