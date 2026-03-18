@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="IoT Appliance Sensor API",
     lifespan=lifespan,  # <-- Kopplar in vår pool!
-    version="1.0",
+    version="2.0",
 )
 # BEST PRACTICE: Variabel [lista med tillåtna URL'er som vi tillåter]
 
@@ -87,13 +87,34 @@ def health_check(db: psycopg.Connection = Depends(get_db_connection)):
 def get_sensor_data(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
-    appliance_type: Optional[str] = None,
-    is_valid: Optional[bool] = None,
-    db: psycopg.Connection = Depends(get_db_connection),  # <-- Lånar från poolen!
+    appliance_type: Optional[str] = Query(
+        None, description="Example: dishwasher, washing_machine or dryer"
+    ),
+    is_valid: Optional[bool] = Query(
+        None, description="Filters entirely on CLEAN or FAULTY data"
+    ),
+    # --- Nya query parameters för att kunna filtrera ---
+    engine_id: Optional[str] = Query(None, description="Search for SPECIFIC engine-ID"),
+    location: Optional[str] = Query(
+        None, description="Filter for which city the machine is in"
+    ),
+    start_date: Optional[datetime] = Query(
+        None, description="Retrieve data starting from this data"
+    ),
+    end_date: Optional[datetime] = Query(
+        None, description="Retrieve data until this date"
+    ),
+    # --- --- --- --- --- ---
+    db: psycopg.Connection = Depends(
+        get_db_connection
+    ),  # <--- Lånar från connection pool
 ):
+
+    # WHERE 1=1 är tricket som låter mig bygga allting dynamiskt
     base_query = "SELECT * FROM silver_sensor_data WHERE 1=1"
     params: List[Any] = []
 
+    # 1) Existerande filter
     if appliance_type is not None:
         base_query += " AND appliance_type = %s"
         params.append(appliance_type)
@@ -102,6 +123,25 @@ def get_sensor_data(
         base_query += " AND is_valid = %s"
         params.append(is_valid)
 
+    # 2) Nya str filters
+    if engine_id is not None:
+        base_query += " AND engine_id = %s"
+        params.append(engine_id)
+
+    if location is not None:
+        base_query += " AND location = %s"
+        params.append(location)
+
+    # 3) Nya tid/datum filter. Användbara för grafer
+    if start_date is not None:
+        base_query += " AND timestamp >= %s"
+        params.append(start_date)
+
+    if end_date is not None:
+        base_query += " AND timestamp <= %s"
+        params.append(end_date)
+
+    # Avslutar med att alltid sortera på nyaste datan först, gäller även pagination(sidindelning)
     base_query += " ORDER BY timestamp DESC LIMIT %s OFFSET %s"
     params.extend([limit, skip])
 
@@ -118,12 +158,16 @@ def get_sensor_data(
                 "filters_applied": {
                     "appliance_type": appliance_type,
                     "is_valid": is_valid,
+                    "engine_id": engine_id,
+                    "location": location,
+                    "start_date": start_date,
+                    "end_date": end_date,
                 },
             },
             "data": rows,
         }
     except Exception as e:
-        # NYTT: Istället för att krascha tyst loggar jag nu VAD felet är/var.
-        # Visar klart och tydligt i terminal output vad som är fel. T.ex, 'appliance_type' saknas i DB etc.
+        # Istället för att krascha TYST loggar jag nu VAD felet är/var.
+        # Visar klart och tydligt i terminal output vad som är fel. T.ex 'appliance_type' saknas i DB etc.
         logger.error(f"Database query failed in /api/v1/sensors: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
