@@ -163,3 +163,17 @@ uv run python -m src.consumer.consumer
 docker compose logs -f kafka
 docker compose logs -f postgres
 ```
+
+## OM du ej klarar CI pipens check. Kan du alltid gå in och se VAD som är felet.
+Enkel lösning: Gå in i VScode igen och skriv denna rad:
+
+`uv run ruff check --fix .`
+
+Du kommer nu se t.ex detta i terminalen:
+
+```bash
+$ uv run ruff check --fix .
+Found 3 errors (3 fixed, 0 remaining).
+```
+
+Så som hände mig nyss. Ser felen i github trädet vid sidan, committar filerna och gör ändringarna. KLART
