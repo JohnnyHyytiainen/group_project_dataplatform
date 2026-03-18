@@ -1,12 +1,15 @@
-# skapa en table i silver lagret som är mer strukturerad och har strikta datatyper, 
+# skapa en table i silver lagret som är mer strukturerad och har strikta datatyper,
 # samt en unik constraint för att undvika dubbletter och för att göra scriptet idempotent (kan köras flera gånger utan att skapa dubbletter eller krascha)
 
 import psycopg
-from src.config.db_config import get_dsn # Importera funktionen för att hämta DSN från vår config fil
+from src.config.db_config import (
+    get_dsn,
+)  # Importera funktionen för att hämta DSN från vår config fil
 
 
 # Hämta config DSN ifrån src/config/db_config.py
 DB_DSN = get_dsn()
+
 
 # Skapa kopplingen till databasen för att kunna skapa vår silver table
 def create_silver_table():
@@ -32,9 +35,9 @@ def create_silver_table():
             conn.commit()
             print("Silver table 'silver_sensor_data' is now created")
 
+
 # ==========================
 # LÄGG IN CHECKS AV CONSTRAINTS
 # ==========================
 if __name__ == "__main__":
     create_silver_table()
-

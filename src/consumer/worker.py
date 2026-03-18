@@ -139,7 +139,9 @@ def run_consumer(
                             continue
                         elif msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
                             # NYTT: Topicen finns inte ännu. Vänta snällt på Producern!
-                            logger.info("Topic not found yet. Waiting for Producer to create it...")
+                            logger.info(
+                                "Topic not found yet. Waiting for Producer to create it..."
+                            )
                             continue
                         else:
                             raise KafkaException(msg.error())

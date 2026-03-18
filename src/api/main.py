@@ -10,12 +10,17 @@ import logging
 
 # Importera  pool-logik
 # Ännu en import behövs för att hämta pydantic schema när det är byggt
-from src.api.database_connection_pool import init_db_pool, close_db_pool, get_db_connection
+from src.api.database_connection_pool import (
+    init_db_pool,
+    close_db_pool,
+    get_db_connection,
+)
 from src.schemas.api_schemas import PaginatedSensorResponse
 # db_setup.py innehåller ej larm-flaggor (maintenance_flags etc)
 # Logik byggs runt is_valid och appliance_type istället.
 
 logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,10 +30,11 @@ async def lifespan(app: FastAPI):
     # Det här körs NÄR API't stängs av.
     close_db_pool()
 
+
 app = FastAPI(
     title="IoT Appliance Sensor API",
     lifespan=lifespan,  # <-- Kopplar in vår pool!
-    version="1.0"
+    version="1.0",
 )
 # BEST PRACTICE: Variabel [lista med tillåtna URL'er som vi tillåter]
 
@@ -46,14 +52,16 @@ app.add_middleware(
 # ENDPOINTS
 # ==========
 
+
 # Standard framsida
 @app.get("/")
 def read_root():
     return {"Message": "Welcome to the IoT Sensor API. Visit /docs for documentation"}
 
+
 # en /health enpoint. Kollar att DB är vid liv genom en enkel SELECT 1
 @app.get("/health")
-def health_check(db: psycopg.Connection=Depends(get_db_connection)):
+def health_check(db: psycopg.Connection = Depends(get_db_connection)):
     """
     Checks that BOTH API and DB is alive and healthy by doing a quick SELECT 1
     """
@@ -68,18 +76,19 @@ def health_check(db: psycopg.Connection=Depends(get_db_connection)):
     return {
         "status": "healthy" if db_status == "connected" else "degraded",
         "timestamp": datetime.now().isoformat(),
-        "database": db_status
+        "database": db_status,
     }
+
 
 # /api/v1/sensors endpoint. Pagination + filtering.
 # Notera "response_model=PaginatedSensorResponse". Detta är sker i schemas/api_schemas.py
 @app.get("/api/v1/sensors", response_model=PaginatedSensorResponse)
 def get_sensor_data(
-    skip: int=Query(0, ge=0),
-    limit: int=Query(100, ge=1, le=1000),
-    appliance_type: Optional[str]=None,
-    is_valid: Optional[bool]=None,
-    db: psycopg.Connection=Depends(get_db_connection) # <-- Lånar från poolen!
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    appliance_type: Optional[str] = None,
+    is_valid: Optional[bool] = None,
+    db: psycopg.Connection = Depends(get_db_connection),  # <-- Lånar från poolen!
 ):
     base_query = "SELECT * FROM silver_sensor_data WHERE 1=1"
     params: List[Any] = []
@@ -105,16 +114,15 @@ def get_sensor_data(
                 "total_returned": len(rows),
                 "skip": skip,
                 "limit": limit,
-                "filters_applied":{
+                "filters_applied": {
                     "appliance_type": appliance_type,
-                    "is_valid": is_valid
-                }
+                    "is_valid": is_valid,
+                },
             },
-            "data": rows
+            "data": rows,
         }
     except Exception as e:
         # NYTT: Istället för att krascha tyst loggar jag nu VAD felet är/var.
         # Visar klart och tydligt i terminal output vad som är fel. T.ex, 'appliance_type' saknas i DB etc.
         logger.error(f"Database query failed in /api/v1/sensors: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
-

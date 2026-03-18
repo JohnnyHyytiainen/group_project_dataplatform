@@ -24,9 +24,7 @@ def run_silver_batch():
 
     # Öppnar databasanslutning och hämtar all rådata från bronze/staging-lagret.
     with psycopg.connect(DB_DSN) as conn:
-
         with conn.cursor(row_factory=dict_row) as cur:
-
             cur.execute("SELECT id, raw_data FROM staging_sensor_data;")
 
             bronze_rows = cur.fetchall()
@@ -37,11 +35,9 @@ def run_silver_batch():
 
             # Öppnar JSONL-filen i append-läge och initierar räknare för processade rader.
             with open(PROCESSED_FIL, "a", encoding="utf-8") as processed_file:
-
                 line_processed = 0
 
                 for row in bronze_rows:
-
                     try:
                         raw_data = row["raw_data"]
                         if isinstance(raw_data, dict):
