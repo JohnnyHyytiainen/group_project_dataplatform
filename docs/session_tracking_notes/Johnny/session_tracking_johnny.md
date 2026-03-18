@@ -146,7 +146,7 @@ Add database connection pool for API
 ## Wednesday 18/03-2026
 **Goals for today:**
 - Setup and test CI/CD pipeline with github actions to test our code automatically at every push or pull request.
-    - Ongoing
+    - Done
 
 - Refactor main.py and add + test query params to filter for the only data user would want to have.
     - Ongoing
