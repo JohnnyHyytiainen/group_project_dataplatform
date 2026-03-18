@@ -6,6 +6,7 @@ from psycopg.rows import dict_row
 from typing import Optional, List, Any
 from datetime import datetime
 import logging
+import os
 
 
 # Importera  pool-logik
@@ -16,6 +17,7 @@ from src.api.database_connection_pool import (
     get_db_connection,
 )
 from src.schemas.api_schemas import PaginatedSensorResponse
+
 # db_setup.py innehåller ej larm-flaggor (maintenance_flags etc)
 # Logik byggs runt is_valid och appliance_type istället.
 
