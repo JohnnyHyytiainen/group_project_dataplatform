@@ -1,0 +1,37 @@
+name: CI Pipeline
+
+# 1) TRIGGERS: När ska vår pipe vakna?
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# 2) JOBS: Vad ska göras av pipen?
+jobs:
+  build-and-test:
+    name: Test Code Quality
+    runs-on: ubuntu-latest # Lånar en Linux server av Github (gratis)
+
+    steps:
+      # Steg A) Hämtar din kod ifrån repot till servern vi lånar
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      # Steg B) Installera 'uv' (eftersom att vi använder oss av uv istället för pip)
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      # Steg C) Installera rätt python version via uv
+      - name: Set up python
+        run: uv python install 3.12
+
+      # Steg D) Ladda ner alla våra deps(dependencies, dvs: FastAPI, psycopg, pytest etc etc..)
+      - name: Install dependencies
+        run: uv sync
+
+      # Steg E) Kör testerna på vår kod vi pushar. Om detta MISSLYCKAS -> Pull requesten STOPPAS.
+      - name: Run Unit tests
+        run: uv run pytest src/test/
