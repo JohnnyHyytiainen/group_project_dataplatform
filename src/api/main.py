@@ -6,7 +6,6 @@ from psycopg.rows import dict_row
 from typing import Optional, List, Any
 from datetime import datetime
 import logging
-import os
 
 
 # Importera  pool-logik
