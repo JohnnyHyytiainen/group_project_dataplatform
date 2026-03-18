@@ -2,7 +2,6 @@
 # samt en unik constraint för att undvika dubbletter och för att göra scriptet idempotent (kan köras flera gånger utan att skapa dubbletter eller krascha)
 
 import psycopg
-import os   # Behövs för att kunna läsa in miljövariabler från .env filen
 from src.config.db_config import get_dsn # Importera funktionen för att hämta DSN från vår config fil
 
 
@@ -31,7 +30,7 @@ def create_silver_table():
                 );
             """)
             conn.commit()
-            print(f"Silver table 'silver_sensor_data' is now created")
+            print("Silver table 'silver_sensor_data' is now created")
 
 # ==========================
 # LÄGG IN CHECKS AV CONSTRAINTS

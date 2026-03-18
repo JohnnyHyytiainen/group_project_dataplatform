@@ -19,7 +19,7 @@ def run_silver_batch():
     insert valid rows into the silver table, and persist processed output to a JSONL file.
     """
 
-    print(f"Starting the batch cleaning job for silver")
+    print("Starting the batch cleaning job for silver")
     os.makedirs(os.path.dirname(PROCESSED_FIL), exist_ok=True)
 
     # Öppnar databasanslutning och hämtar all rådata från bronze/staging-lagret.

@@ -191,7 +191,6 @@ dependencies = [
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg-pool" },
     { name = "pydantic-settings" },
-    { name = "ruff" },
     { name = "sqlalchemy" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -199,6 +198,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -213,13 +213,15 @@ requires-dist = [
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
     { name = "psycopg-pool", specifier = ">=3.3.0" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
-    { name = "ruff", specifier = ">=0.15.6" },
     { name = "sqlalchemy", specifier = ">=2.0.47" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.41.0" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.0.2" }]
+dev = [
+    { name = "pytest", specifier = ">=9.0.2" },
+    { name = "ruff", specifier = ">=0.15.6" },
+]
 
 [[package]]
 name = "h11"
