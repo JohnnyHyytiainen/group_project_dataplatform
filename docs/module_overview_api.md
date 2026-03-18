@@ -45,3 +45,10 @@ To start the API in development mode with "hot reload" (the server automatically
 ```bash
 uv run uvicorn src.api.main:app --reload
 ```
+
+## Testing Instructions.
+To test our API run this command:
+
+```bash
+uv run pytest tests/test_api.py -v
+```
