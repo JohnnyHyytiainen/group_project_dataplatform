@@ -146,13 +146,19 @@ Add database connection pool for API
 ## Wednesday 18/03-2026
 **Goals for today:**
 - Setup and test CI/CD pipeline with github actions to test our code automatically at every push or pull request.
-    - Done
+    - **Done**
 
 - Write module docs for CI/CD pipeline.
-    - Done
+    - **Done**
     
 - Refactor main.py and add + test query params to filter for the only data user would want to have.
-    - Ongoing
+    - **Done**
+    - Examples:
+    - `INFO:     xxx.xx.x.x:xxxxx - "GET /api/v1/sensors?skip=0&limit=100&is_valid=false HTTP/1.1" 200 OK`
+    - `INFO:     xxx.xx.x.x:xxxxx - "GET /api/v1/sensors?skip=2&limit=50&is_valid=true HTTP/1.1" 200 OK`
 
 - Write module docs for entire api module
-    - Ongoing
+    - Done
+
+## Thursday 19/03-2026
+**Goals for today:**
