@@ -5,17 +5,17 @@
 # Format: {"felstavning": "korrekt_standard"}
 # ---------------------------------------------------------
 APPLIANCE_MAPPING = {
-    "dish_washer"  : "dishwasher",
+    "dish_washer": "dishwasher",
     "dryingcabiner": "drying_cabinet",
-    "dryingcabinet": "drying_cabinet"  # Ifall bindestreck/understreck försvunnit
+    "dryingcabinet": "drying_cabinet",  # Ifall bindestreck/understreck försvunnit
 }
 
 # Värdegränser för validering av data
 VALID_RANGES = {
-    "rpm"         : (0, 5000),
-    "engine_temp" : (-20, 200),
+    "rpm": (0, 5000),
+    "engine_temp": (-20, 200),
     "vibration_hz": (0, 100),
-    "run_hours"   : (0, 100000)
+    "run_hours": (0, 100000),
 }
 
 
@@ -32,7 +32,6 @@ def clean_event(raw_event: dict) -> dict:
     extreme_value = False
 
     for field in numeric_fields:
-
         if field in cleaned and isinstance(cleaned[field], str):
             try:
                 # Försök göra om sträng till en float och tvätta den.
@@ -50,7 +49,13 @@ def clean_event(raw_event: dict) -> dict:
     # 2) Tvätta Appliance Type
     if "appliance_type" in cleaned and isinstance(cleaned["appliance_type"], str):
         # Steg A: Standardisera grunden (små bokstäver, inga mellanslag, byt bindestreck till understreck)
-        base_cleaned = cleaned["appliance_type"].strip().lower().replace(" ", "_").replace("-", "_")
+        base_cleaned = (
+            cleaned["appliance_type"]
+            .strip()
+            .lower()
+            .replace(" ", "_")
+            .replace("-", "_")
+        )
 
         # Steg B: Slå upp i vår mapping.
         # .get(key, default) betyder: "Hittar du felstavningen i ordboken? Ge mig rättningen.

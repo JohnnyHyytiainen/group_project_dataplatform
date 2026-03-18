@@ -30,8 +30,17 @@ jobs:
 
       # Steg D) Ladda ner alla våra deps(dependencies, dvs: FastAPI, psycopg, pytest etc etc..)
       - name: Install dependencies
+        # Installerar (syncar med repots deps) alla dependencies som finns i repots pyproject.toml fil
         run: uv sync
 
-      # Steg E) Kör testerna på vår kod vi pushar. Om detta MISSLYCKAS -> Pull requesten STOPPAS.
+      # Steg E) Kör ruff för att kolla kodstil(Kallas linting som Kristoffer påpekat i skolan)
+      - name: Lint with Ruff
+        run: uv run ruff check .
+
+      # Steg F) Kör Ruff för att kolla formatering
+      - name: Format check using Ruff
+        run: uv run ruff format --check .
+
+      # Steg G) Kör testerna på vår kod vi pushar. Om detta MISSLYCKAS -> Pull requesten STOPPAS.
       - name: Run Unit tests
         run: uv run pytest src/test/

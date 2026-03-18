@@ -1,10 +1,14 @@
 # Importera mina deps
 import psycopg
-import logging   # För att kunna logga vad som händer i scriptet, vilket är
-from src.config.db_config import get_dsn # Importera funktionen för att hämta DSN från vår config fil
+import logging  # För att kunna logga vad som händer i scriptet, vilket är
+from src.config.db_config import (
+    get_dsn,
+)  # Importera funktionen för att hämta DSN från vår config fil
 
 # Logging funktioner.
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Hämta database 'Data Source Name'
@@ -18,11 +22,12 @@ def setup_gold_layer():
     Based on gold layer ERD.
     """
 
-    with psycopg.connect(DB_DSN) as conn: # Skapa en connection till databasen, och använd 'with' så att den stängs automatiskt när vi är klara
+    with (
+        psycopg.connect(DB_DSN) as conn
+    ):  # Skapa en connection till databasen, och använd 'with' så att den stängs automatiskt när vi är klara
         with conn.cursor() as cur:
-            
             logger.info("Creating Dimension tables...")
-            
+
             # DIM_ENGINE table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS dim_engine (
@@ -30,16 +35,16 @@ def setup_gold_layer():
                     engine_id TEXT UNIQUE NOT NULL
                 );
             """)
-            
-            # DIM_LOCATION table 
+
+            # DIM_LOCATION table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS dim_location (
                     location_sk SERIAL PRIMARY KEY,
                     location TEXT UNIQUE NOT NULL
                 );
             """)
-            
-            # DIM_DATE table 
+
+            # DIM_DATE table
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS dim_date (
                     date_sk SERIAL PRIMARY KEY,
@@ -59,7 +64,7 @@ def setup_gold_layer():
             """)
 
             logger.info("Creating Fact tables...")
-            
+
             # FACT_SENSOR_READING (Huvudfaktan, hjärtat i gold_layer_PDM.png / gold_layer_PDM.mmd)
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS fact_sensor_reading (
@@ -109,9 +114,10 @@ def setup_gold_layer():
                     UNIQUE (engine_sk, date_sk)
                 );
             """)
-            
+
             conn.commit()
             logger.info("Gold Layer tables created successfully exactly matching ERD!")
+
 
 if __name__ == "__main__":
     setup_gold_layer()
