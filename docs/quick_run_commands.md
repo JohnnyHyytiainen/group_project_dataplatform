@@ -177,3 +177,10 @@ Found 3 errors (3 fixed, 0 remaining).
 ```
 
 Så som hände mig nyss. Ser felen i github trädet vid sidan, committar filerna och gör ändringarna. KLART
+
+OM felet kvarstår och vår CI pipe fortfarande skriker. Se vad den skriker på och följ dessa steg så bör det fungera:
+
+
+Kör först: `uv run ruff check --fix .` (Detta lagar alla linter-fel den vågar röra).
+
+Superviktigt steg: Kör `uv run ruff format .` (Märk väl: utan --check). Detta tvingar Ruff att snygga till alla radbrytningar och citattecken på din dator, så att koden garanterat passerar Steg F i din pipeline sen!
