@@ -43,7 +43,11 @@ def clean_event(raw_event: dict) -> dict:
         # Validering
         min_val, max_val = VALID_RANGES[field]
 
-        if cleaned[field] is not None and not (min_val <= cleaned[field] <= max_val):
+        # --- BUG FIX ---
+        val = cleaned.get(field)  # Hämtar säkert, blir None om fältet helt saknas
+
+        # Om värdet är None (offline/saknas) ELLER utanför våra gränser -> Flagga!
+        if val is None or not (min_val <= val <= max_val):
             extreme_value = True
 
     # 2) Tvätta Appliance Type

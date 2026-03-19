@@ -166,7 +166,7 @@ try:
             producer.produce(TOPIC_NAME, value=json_payload, callback=delivery_report)
             producer.poll(0)
             # Tidsintervall för att kontrollera hur snabbt data ska genereras
-            time.sleep(60)
+            time.sleep(30)
 
 except KeyboardInterrupt:
     print("\nTurning off...")
