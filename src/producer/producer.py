@@ -40,7 +40,7 @@ print(
 # ==========
 # 1) Bygger vår flotta av motorer vi väljer (Så kallad 'Stateful data')
 # ==========
-NUM_MACHINES = 1000  # Antal unika motorer i vår flotta
+NUM_MACHINES = 800  # Antal unika motorer i vår flotta
 fleet = []
 print(f"Building our fleet of {NUM_MACHINES}..")
 
@@ -52,10 +52,12 @@ for x in range(NUM_MACHINES):
             "appliance_type": random.choice(
                 ["washing_machine", "dryer", "dishwasher", "drying_cabinet"]
             ),
-            "location": fake.city(),
+            "location": random.choice(
+                ["Stockholm", "Gothenburg", "Malmo", "Uppsala", "Helsingborg"]
+            ),
             # Ger våra maskiner(motorer) en starttid i det förflutna. Våra sensorer började mäta 2006.
             "current_time": fake.date_time_between(
-                start_date=datetime(2006, 1, 1), end_date=datetime.now()
+                start_date=datetime(2016, 1, 1), end_date=datetime.now()
             ),
             # Genererar en slumpmässig mätarställning från start
             "run_hours": round(random.uniform(10.0, 500.0), 1),
