@@ -1,7 +1,7 @@
 # skapa en table i silver lagret som är mer strukturerad och har strikta datatyper,
 # samt en unik constraint för att undvika dubbletter och för att göra scriptet idempotent (kan köras flera gånger utan att skapa dubbletter eller krascha)
 import os
-
+import json
 
 import psycopg
 from src.config.db_config import (
