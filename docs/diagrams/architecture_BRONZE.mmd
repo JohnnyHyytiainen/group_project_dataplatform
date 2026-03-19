@@ -4,7 +4,7 @@ graph TD
     
     C -->|Pydantic validation| D{Approved?}
     
-    D -->|Yes: Dirty & Flags| E[(PostgreSQL<br/>staging_sensor_data)]
+    D -->|Yes: Dirty & Status| E[(PostgreSQL<br/>staging_sensor_data)]
     D -->|No: Missing ID / Invalid| F[(PostgreSQL<br/>faulty_events)]
     
     classDef producer fill:#000,stroke:#28a745,stroke-width:3px;
