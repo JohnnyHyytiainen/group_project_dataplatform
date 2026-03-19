@@ -162,3 +162,9 @@ Add database connection pool for API
 
 ## Thursday 19/03-2026
 **Goals for today:**
+- Refactor producer.py script to only contain Swedish cities
+    - Done
+
+- Generate new data with SWEDISH citys
+    - Done
+
