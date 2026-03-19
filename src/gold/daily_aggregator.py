@@ -55,7 +55,7 @@ def run_daily_aggregation():
 
             conn.commit()
             print(
-                f"Work is done. Aggregated and saved in Daily aggregation layer."
+                "Work is done. Aggregated and saved in Daily aggregation layer."
             )
 
 
