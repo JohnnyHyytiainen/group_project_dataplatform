@@ -12,9 +12,9 @@ APPLIANCE_MAPPING = {
 
 # Värdegränser för validering av data
 VALID_RANGES = {
-    "rpm": (0, 5000),
-    "engine_temp": (-20, 200),
-    "vibration_hz": (0, 100),
+    "rpm": (0, 1700),
+    "engine_temp": (-20, 110),
+    "vibration_hz": (0, 15),
     "run_hours": (0, 100000),
 }
 
@@ -30,6 +30,7 @@ def clean_event(raw_event: dict) -> dict:
     # 1) Validera värden. Sätter is_valid till false för extrema värden
     numeric_fields = ["rpm", "engine_temp", "vibration_hz", "run_hours"]
     extreme_value = False
+    missing_value = False
 
     for field in numeric_fields:
         if field in cleaned and isinstance(cleaned[field], str):
@@ -42,12 +43,13 @@ def clean_event(raw_event: dict) -> dict:
 
         # Validering
         min_val, max_val = VALID_RANGES[field]
-
-        # --- BUG FIX ---
         val = cleaned.get(field)  # Hämtar säkert, blir None om fältet helt saknas
 
-        # Om värdet är None (offline/saknas) ELLER utanför våra gränser -> Flagga!
-        if val is None or not (min_val <= val <= max_val):
+        # Om värdet saknas -> flagga
+        if val is None:
+            missing_value = True
+        # Om värdet är utanför valid ranges -> flagga
+        if val is not None and not (min_val <= val <= max_val):
             extreme_value = True
 
     # 2) Tvätta Appliance Type
@@ -74,7 +76,8 @@ def clean_event(raw_event: dict) -> dict:
     # VIKTIGASTE RADEN, IS_VALID FLAGGA. GLÖM EJ!
     # 4) Sätt en is_valid flagga (Vi kräver att alla VALID rows innehåller ett engine_id!!!)
     is_valid_engine = bool(cleaned.get("engine_id"))
-    cleaned["is_valid"] = is_valid_engine and not extreme_value
+
+    cleaned["is_valid"] = is_valid_engine and not extreme_value and not missing_value
 
     # 5) Returnera cleaned
     return cleaned
