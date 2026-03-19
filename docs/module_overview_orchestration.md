@@ -28,6 +28,14 @@ För att starta hela Medallion plattformen (Databas, Kafka, Producer, Consumer o
 docker-compose up -d --build
 ```
 
+## För att uppdatera en image som är äldre i t.ex producer(som behövs nu när vi har 5 olika städer och ej random städer)
+För att enbart bygga ny image/ uppdatera vår image i docker så kör detta command
+
+```bash
+docker compose build --no-cache producer
+```
+Du ska nu producera nya städer i sverige
+
 **För att återskapa ALL data EXAKT som den är i vår cold storage JSONL raw fil. Skriv in detta:**
 ```bash
 docker exec -it live_producer uv run python -m src.producer.replayer
