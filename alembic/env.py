@@ -10,7 +10,6 @@ from alembic import context
 config = context.config
 
 # Mina egna imports
-from dotenv import load_dotenv
 import os
 import sys
 
