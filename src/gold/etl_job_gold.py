@@ -26,7 +26,6 @@ def run_gold_etl():
     # Öppnar anslutningen mot datgabases
     with psycopg.connect(DB_DSN) as conn:
         with conn.cursor() as cur:
-
             cur.execute(
                 """
                 SELECT 
