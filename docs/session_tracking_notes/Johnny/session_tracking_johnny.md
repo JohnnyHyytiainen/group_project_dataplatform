@@ -188,4 +188,4 @@ Add database connection pool for API
     - **Done**
 
 - Add a layer of argparse over entire pipeline, Silver -> Gold layer or from bronze-gold. Quality of life addition to only run one of three commands for the entire process instead of having to run one script at a time.
-    - **ONGOING**
+    - **Done**
