@@ -36,14 +36,12 @@ def run_daily_aggregation():
                 WHERE is_valid = TRUE
                 GROUP BY engine_id
                 RETURNING engine_id, max_temperature, average_rpm;
-                """)
+                """
+            )
 
             inserted_rows = cur.fetchall()
 
-
-
             with open(PROCESSED_FILE, "a", encoding="utf-8") as f:
-
                 if not inserted_rows:
                     print("No data found.")
                     return
@@ -54,9 +52,7 @@ def run_daily_aggregation():
                 print("Writing to:", os.path.abspath(PROCESSED_FILE))
 
             conn.commit()
-            print(
-                "Work is done. Aggregated and saved in Daily aggregation layer."
-            )
+            print("Work is done. Aggregated and saved in Daily aggregation layer.")
 
 
 if __name__ == "__main__":
