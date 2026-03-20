@@ -158,13 +158,34 @@ Add database connection pool for API
     - `INFO:     xxx.xx.x.x:xxxxx - "GET /api/v1/sensors?skip=2&limit=50&is_valid=true HTTP/1.1" 200 OK`
 
 - Write module docs for entire api module
-    - Done
+    - **Done**
 
 ## Thursday 19/03-2026
 **Goals for today:**
 - Refactor producer.py script to only contain Swedish cities
-    - Done
+    - **Done**
 
 - Generate new data with SWEDISH citys
-    - Done
+    - **Done**
 
+## Friday 20/03-2026
+**Goals for today:**
+- Generate more new data and clean it properly.
+    - **Done**
+
+- Add deps to make DB ready for migration(revision using alembic)
+    - **Done**
+
+- Write scripts to handle DB revisions
+    - **Done**
+
+- Handle alembic revision to create our first version of current state of database.
+    - Commands used were: `uv run alembic revision -m "Initial schema setup for Silver and Gold"`
+    - `uv run alembic upgrade head`
+        - **Done**
+
+- Write module overview to explain DB revisions and migrations
+    - **Done**
+
+- Add a layer of argparse over entire pipeline, Silver -> Gold layer or from bronze-gold. Quality of life addition to only run one of three commands for the entire process instead of having to run one script at a time.
+    - **ONGOING**

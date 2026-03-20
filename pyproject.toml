@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.18.4",
     "confluent-kafka>=2.13.2",
     "dotenv>=0.9.9",
     "faker>=40.5.1",
