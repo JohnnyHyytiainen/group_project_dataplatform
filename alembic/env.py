@@ -1,3 +1,6 @@
+import os
+import sys
+from src.config.db_config import get_dsn
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -9,15 +12,11 @@ from alembic import context
 # access to the values within the .ini file in use.
 config = context.config
 
-# Mina egna imports
-import os
-import sys
 
 # 1) Se till att python hittar src folder ifrån root
 sys.path.append(os.getcwd())
 
 # 2) Importera DB config funktionen med vår DSN
-from src.config.db_config import get_dsn
 
 # 3) Hämta connection str direkt ur config
 database_url = get_dsn()
