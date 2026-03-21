@@ -24,7 +24,7 @@ I en traditionell relationsdatabas (OLTP, typ en webbshop) är `ON DELETE CASCAD
 
 Men i ett Data Warehouse / Medallion-arkitektur (OLAP) är regeln nästan alltid: **Vi raderar aldrig data. Vi är "Append-Only"**
 
-* **Risken med Cascade:** Tänk om någon råkar köra en `DELETE` på en motor i `DIM_ENGINE` av misstag. Om vi hade `ON DELETE CASCADE`, skulle Postgres blixtsnabbt radera **alla** historiska mätvärden för den motorn i faktatabellen! Plötsligt försvinner tre års KPI-historik i vår dashboard, och företaget tappar all sin finansiella sta§tistik för den maskinen (BIG PROBLEM!!!)
+* **Risken med Cascade:** Tänk om någon råkar köra en `DELETE` på en motor i `DIM_ENGINE` av misstag. Om vi hade `ON DELETE CASCADE`, skulle Postgres blixtsnabbt radera **alla** historiska mätvärden för den motorn i faktatabellen! Plötsligt försvinner tre års KPI-historik i vår dashboard, och företaget tappar all sin finansiella statistik för den maskinen (BIG PROBLEM!!!)
 
 * **Soft Deletes:** Istället för att radera en motor som skrotas, lägger man ofta till en kolumn i dimensionen som heter `is_active = False` (Här är en liknelse med logiken med varför vi använder `is_valid` och varför vi använder oss av `is_valid =` flaggan). Då bevaras historiken för rapporterna, men maskinen dyker inte upp som ett val i nya sökningar.
 

@@ -38,7 +38,9 @@ Our API is built with a _Defense in Depth_ mindset to protect our data and ensur
 
 - **Dependency Injection (`Depends(get_db_connection)`):** Makes our code extremely modular. The endpoint doesn't need to worry about _how_ it gets a database connection; it just asks for one.
 
-- **Row Formatting (`dict_row`):** By default `psycopg` returns data as anonymous tuples. By enabling `row_factory=dict_row`, database rows are automatically converted to Python Dictionaries (with keys like `rpm` and `engine_temp`). This allows FastAPI to seamlessly translate the response into JSON.
+- **Row Formatting (`dict_row`):** By default `psycopg` returns data as anonymous tuples. By enabling `row_factory=dict_row`, database rows are automatically converted to Python Dictionaries (with keys like `rpm` and `engine_temp`). This allows FastAPI to seamlessly translate the response into JSON. 
+
+Without `dict_row` `psycopg` returns tuples as mentioned. But they get returned without column names which makes it impossible for `FastAPI` to know that `(72.4, 1200.0, 8.1)` `72.4` is `engine_temp` and not `rpm`.
 
 - **Dynamic SQL (`WHERE 1=1`):** Starting our query with `WHERE 1=1` is a classic trick(thanks geeksforgeeks!). It allows us to bypass complex `if/else` logic to determine which filter comes first. We just dynamically append `AND [condition]` for every query parameter the user provides.
 

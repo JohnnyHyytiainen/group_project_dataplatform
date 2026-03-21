@@ -33,7 +33,12 @@ Nej, det funkar utmärkt att ha allt i samma PostgreSQL databas! Det finns två 
 
 1. **Prefix (Det Vi i grupp 6 gör):** Tabellerna heter `staging_...`, `silver_...`, `dim_...` och `fact_...`. Namnet berättar vilket lager tabellen tillhör.
 
-2. **Schemas (Lite mer avancerat):** Man kan skapa logiska mappar i Postgres (`CREATE SCHEMA bronze;`, `CREATE SCHEMA silver;`) så att tabellerna heter `bronze.sensor_data`, `silver.sensor_data`. Men prefix räcker gott och väl för ett bra ett MvP och detta projekt.
+2. **Schemas (Lite mer avancerat):** Man kan skapa logiska mappar i Postgres (`CREATE SCHEMA bronze;`, `CREATE SCHEMA silver;`) så att tabellerna heter `bronze.sensor_data`, `silver.sensor_data`. 
+
+3. **Prefix VS Schemas:** För denna labb räcker prefix gott och väl för ett bra MvP. Dock så är det värt att nämna *varför* schemas är bättre i större system och det kan sammanfattas till ett ord: **Behörigheter**.
+
+Med `CREATE SCHEMA GOLD; GRANT SELECT ON SCHEMA gold TO analyst_role;` kan man ge analytiker läsrättigheter till Gold utan att de ens kan se `bronze` till exempel. Det kan fungera som ytterligare ett lager av säkerhet både för läckt data men även för att rätt data hamnar hos rätt personer för att kunna utföra så tydliga analyser det bara går.
+
 
 ### Sammanfattning
 *Inom Data Engineering bygger vi slussar. Bronze slussar data till Silver, Silver slussar till Gold. De är löskopplade för att vi ska kunna riva eller bygga om ett lager utan att krascha hela databasen. Relationerna (Foreign Keys) använder vi bara inuti Gold-lagret för att bygga vår affärsmodell!*

@@ -3,14 +3,15 @@ graph TD
     
     B -->|2. Pass Dict| C{Data Cleaner<br/>cleaner.py}
     
-    C -->|3a. Type Casting & Whitespace fix| D[Apply Business Logic]
-    C -->|3b. Soft Filter| D
+    C -->|3. Type cast → Normalize → Flag is_valid| D[Apply Business Logic]
     
     D -->|is_valid flaggat| E[Idempotent Upsert<br/>ON CONFLICT DO NOTHING]
     
-    E -->|4. Insert Data| F[(PostgreSQL Silver<br/>silver_sensor_data)]
+    E -->|4. Insert Data| F[(Silver)]
+
+    F -->|RETURNING silver_id| B
+    B -->|5. Write if inserted| G[JSONL]
     
-    F -.->|5. RETURNING silver_id<br/> | G[Curated Data Lake<br/>cleaned_sensor_data.jsonl]
 
     classDef db fill:#222,stroke:#6c757d,stroke-width:8px;
     classDef script fill:#111,stroke:#007bff,stroke-width:3px;

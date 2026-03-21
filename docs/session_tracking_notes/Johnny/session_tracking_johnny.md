@@ -201,3 +201,6 @@ Add database connection pool for API
 - Branch out and lock branch to keep current progress of work stable
     - **Done**
     
+- Cleaned up a bit in docs and remade diagrams to show correct flow of entire architecture
+    - **Done**
+    

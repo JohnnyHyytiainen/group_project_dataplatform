@@ -19,7 +19,7 @@ Pipelinen körs på en isolerad Ubuntu-server i molnet `runs-on: ubuntu-latest` 
 3. **Kodgranskning (Linting & Formatting):** 
 - Kör `Ruff` (en extremt snabb linter/formaterare skriven i Rust som nämndes ovan)
 
-- Den analyserar koden efter anti-patterns, oanvända imports och type errors.
+- Den analyserar koden efter anti-patterns och oanvända imports. Notera att Ruff enbart är en linter och formatterare, riktig type checking görs av verktyg så som `mypy` eller `pyright`
 
 - Den verifierar att koden följer projektets formateringsstandard (PEP 8). Om koden är ful, avbryts pipelinen(Så var snäll att högerklicka på scripten, välj format document with... Sedan välj din formatter. Helst Ruff eller autopep8, men Black och Prettier BÖR fungera)
 
