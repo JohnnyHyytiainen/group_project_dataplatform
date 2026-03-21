@@ -36,6 +36,13 @@ docker compose build --no-cache producer
 ```
 Du ska nu producera nya städer i sverige
 
+## Dashboard.
+För att bygga upp vår nya dashboard innuti docker containern skriv detta:
+```bash
+docker compose up --build streamlit
+```
+När allting har laddat klart har du byggt upp en ny session innuti vår container.
+
 **För att återskapa ALL data EXAKT som den är i vår cold storage JSONL raw fil. Skriv in detta:**
 ```bash
 docker exec -it live_producer uv run python -m src.producer.replayer

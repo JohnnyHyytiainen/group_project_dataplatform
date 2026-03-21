@@ -189,3 +189,15 @@ Add database connection pool for API
 
 - Add a layer of argparse over entire pipeline, Silver -> Gold layer or from bronze-gold. Quality of life addition to only run one of three commands for the entire process instead of having to run one script at a time.
     - **Done**
+
+## Saturday 21/03-2026
+**Goals for today:**
+- Add deps and set up docker-compose file to run streamlit dashboard within container
+    - **Done**
+
+- Test to see if streamlit dashboard works
+    - **Done**
+
+- Branch out and lock branch to keep current progress of work stable
+    - **Done**
+    

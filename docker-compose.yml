@@ -70,5 +70,24 @@ services:
     volumes:
       - ./data:/app/data
 
+  streamlit:
+    build: .
+    container_name: live_streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - API_URL=http://api:8000
+    command: uv run streamlit run src/dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+    depends_on:
+      - api
+      - postgres
+  
 volumes:
   live_pg_data:

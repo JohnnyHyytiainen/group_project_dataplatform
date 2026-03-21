@@ -6,17 +6,22 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.18.4",
+    "altair==4.2.2",
     "confluent-kafka>=2.13.2",
     "dotenv>=0.9.9",
     "faker>=40.5.1",
     "fastapi>=0.135.1",
     "httpx>=0.28.1",
     "lxml>=6.0.2",
-    "pandas>=3.0.1",
+    "matplotlib>=3.10.8",
+    "pandas>=2.2.0,<3.0.0",
+    "plotly>=6.6.0",
     "psycopg-pool>=3.3.0",
     "psycopg[binary]>=3.3.3",
     "pydantic-settings>=2.13.1",
+    "seaborn>=0.13.2",
     "sqlalchemy>=2.0.47",
+    "streamlit>=1.28.0,<2.0.0",
     "uvicorn[standard]>=0.41.0",
 ]
 
