@@ -38,12 +38,13 @@ app = FastAPI(
     version="2.0",
 )
 # BEST PRACTICE: Variabel [lista med tillåtna URL'er som vi tillåter]
+origins = ["http://localhost:8501"]
 
 # 1) Middleware
 # Gör det möjligt för framtida frontend (Streamlit, powerBI etc) att prata med API utan CORS blockage
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # BEST PRACTICE == ÄNDRA -> Dashboard PORT.
+    allow_origins=origins,  # BEST PRACTICE == ÄNDRA -> Dashboard PORT.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -171,3 +172,50 @@ def get_sensor_data(
         # Visar klart och tydligt i terminal output vad som är fel. T.ex 'appliance_type' saknas i DB etc.
         logger.error(f"Database query failed in /api/v1/sensors: {e}")
         raise HTTPException(status_code=500, detail="Database query failed")
+
+
+# ENDPOINT FÖR GOLD LAYER
+# Dashboard
+@app.get("/api/v1/dashboard/summary")
+def get_dashboard_summary(
+    location: Optional[str] = Query(None),
+    appliance_type: Optional[str] = Query(None),
+    db: psycopg.Connection = Depends(get_db_connection),
+):
+    """Aggregated Gold data for dashboard cards and graphs"""
+    query = """
+        SELECT
+            a.appliance_type,
+            l.location,
+            COUNT(DISTINCT e.engine_id)                          AS antal_motorer,
+            ROUND(AVG(fsr.engine_temp)::numeric, 1)              AS snitt_temp,
+            ROUND(AVG(fsr.run_hours)::numeric, 1)                AS snitt_drifttid,
+            COUNT(*) FILTER (WHERE fsr.temp_warning)             AS överhettade,
+            COUNT(*) FILTER (WHERE fsr.rpm_warning)              AS hög_rpm,
+            COUNT(*) FILTER (WHERE fsr.vibration_warning)        AS hög_vibration,
+            COUNT(*) FILTER (WHERE fsr.run_hours > 400
+                AND (fsr.temp_warning OR fsr.rpm_warning
+                     OR fsr.vibration_warning))                  AS dubbel_riskfaktor
+        FROM fact_sensor_reading fsr
+        JOIN dim_engine    e ON fsr.engine_sk    = e.engine_sk
+        JOIN dim_appliance a ON fsr.appliance_sk = a.appliance_sk
+        JOIN dim_location  l ON fsr.location_sk  = l.location_sk
+        WHERE 1=1
+    """
+    params = []
+    if location:
+        query += " AND l.location = %s"
+        params.append(location)
+    if appliance_type:
+        query += " AND a.appliance_type = %s"
+        params.append(appliance_type)
+
+    query += " GROUP BY a.appliance_type, l.location ORDER BY dubbel_riskfaktor DESC"
+
+    try:
+        with db.cursor(row_factory=dict_row) as cur:
+            cur.execute(query, params)
+            return {"data": cur.fetchall()}
+    except Exception as e:
+        logger.error(f"Dashboard summary query failed: {e}")
+        raise HTTPException(status_code=500, detail="Query failed")
