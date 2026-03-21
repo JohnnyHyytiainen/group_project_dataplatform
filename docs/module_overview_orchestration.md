@@ -11,6 +11,7 @@ Vi använder ett slutet, internt Docker-nätverk där våra tjänster pratar med
 * **`postgres:16-alpine`**: Databasen. Vi använder en dölj volym `live_pg_data` för att datan ska överleva även om containern raderas. Exponeras lokalt via port `5439` för PgAdmin åtkomst.
 
 * **`apache/kafka:latest`**: Vår Message Broker. Körs i KRaft-mode (utan Zookeeper) för en mer lättviktig setup.
+    * **Viktigt att veta:** För denna lab använder vi oss av `latest` men `latest` som tag i riktig produktion är ett anti-pattern som kan leda till stora problem. Detta för att en ny version kan bryta bakåtkompatibiliteten utan förvarning. Det var ett medvetet val i MvP syfte att vi använder oss av `latest` för att snabbt börja jobba men i produktion vill man helst pinna en specifik version.
 
 ### 2. Applikationer (Egenbyggd Image via `Dockerfile`)
 Vi använder en enda centraliserad `Dockerfile` (baserad på `python:3.12-slim`) för hela vår kodbas. Den installerar våra dependencies via `uv`. I vår Compose fil snurrar vi sedan upp tre isolerade kopior av denna Image med olika ansvarsområden:

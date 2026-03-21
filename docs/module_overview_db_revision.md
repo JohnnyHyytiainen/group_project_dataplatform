@@ -46,6 +46,7 @@ När vi kör kommandot `uv run alembic upgrade head` händer följande:
 2. Den läser av vilket ID som ligger där (ex: `ea79237cf323`).
 
 3. Den tittar i vår lokala kodmapp (`alembic/versions/`) och letar upp skript som är *nyare* än detta ID.
+    - - **VIKTIGT ATT VETA:** kring `alembic/versions/` mappen är att den ska committas till Git MEN att `alembic.ini` *KAN* innehålla connection strings som **INTE** ska committas. Därför är det kritiskt att alltid använda sig av t.ex det vi gör i detta projekt med vår `get_dsn()` funktion i `src/config/` mappen.
 
 4. Den kör `upgrade()`-funktionen i de nya skripten.
 

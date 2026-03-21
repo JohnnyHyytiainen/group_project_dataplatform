@@ -1,5 +1,6 @@
 graph TD
-    A[IoT Fleet Simulator<br/>producer.py] -->|JSONL Payload| B(Apache Kafka<br/>sensor_data_stream)
+    A[IoT Fleet Simulator<br/>producer.py] -->|JSON Payload| B(Apache Kafka<br/>sensor_data_stream)
+    A -->|Append| H[Cold Storage<br/>raw_sensor_data.jsonl]
     B --> C[Quality Gate<br/>consumer.py]
     
     C -->|Pydantic validation| D{Approved?}
