@@ -71,3 +71,14 @@ def test_missing_location_gets_fallback():
     del event["location"]
     result = clean_event(event)
     assert result["location"] == "Unknown Location"
+
+
+# --- Regression test for the bug ---
+def test_offline_sensor_does_not_kill_is_valid():
+    """
+    REGRESSION TEST: rpm=None means the sensor was offline, not that the row is corrupt.
+    is_valid must stay True as long as engine_id is present and no extreme values exist.
+    If this test fails it means 'and not missing_value' has been added back to line 80.
+    """
+    result = clean_event(base_event(rpm=None))
+    assert result["is_valid"] is True
