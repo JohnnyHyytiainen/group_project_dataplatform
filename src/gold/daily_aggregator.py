@@ -15,27 +15,40 @@ def run_daily_aggregation():
 
     with psycopg.connect(DB_DSN) as conn:
         with conn.cursor(row_factory=dict_row) as cur:
-            # Create tables
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS daily_aggregation (
-                    engine_id TEXT PRIMARY KEY,
-                    max_temperature FLOAT,
-                    average_rpm FLOAT
-                );
-            """)
-
             # Create aggregations and inserting them into the tables
             cur.execute(
                 """
-                INSERT INTO daily_aggregation (engine_id, max_temperature, average_rpm)
-                SELECT 
-                    engine_id,
-                    round(max(engine_temp)::numeric, 1),
-                    round(avg(rpm))
-                FROM silver_sensor_data
-                WHERE is_valid = TRUE
-                GROUP BY engine_id
-                RETURNING engine_id, max_temperature, average_rpm;
+                INSERT INTO fact_engine_daily (
+                engine_sk,
+                date_sk,
+                max_engine_temp,
+                avg_rpm,
+                max_vibration,
+                max_run_hours,
+                warnings_total
+                )
+                SELECT
+                    engine_sk,
+                    date_sk,
+                    ROUND(MAX(engine_temp)::numeric, 1) max_engine_temp,
+                    ROUND(AVG(rpm)) avg_rpm,
+                    ROUND(MAX(vibration_hz)::numeric, 1) max_vibration,
+                    MAX(run_hours) max_run_hours,
+                    SUM(
+                        maintenance_warning::int +
+                        temp_warning::int +
+                        rpm_warning::int +
+                        vibration_warning::int
+                    ) warnings_total
+                FROM fact_sensor_reading
+                GROUP BY
+                    engine_sk,
+                    date_sk
+                ORDER BY
+                    engine_sk,
+                    date_sk
+                ON CONFLICT do nothing
+                RETURNING *;
                 """
             )
 
@@ -52,7 +65,7 @@ def run_daily_aggregation():
                 print("Writing to:", os.path.abspath(PROCESSED_FILE))
 
             conn.commit()
-            print("Work is done. Aggregated and saved in Daily aggregation layer.")
+            print(f"Work is done. Inserted {cur.rowcount} rows to fact_engine_daily.")
 
 
 if __name__ == "__main__":
