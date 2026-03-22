@@ -9,3 +9,7 @@
 - [X] Add missing value validation to cleaner function
 - [X] Adjust valid ranges for cleaner function
 - [X] Create an aggregation for use in dashboard
+
+## Thursday 2026-03-19
+
+- [ ] Add the rest of the components for daily aggregator
