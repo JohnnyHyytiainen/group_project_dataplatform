@@ -1,8 +1,12 @@
 import psycopg
 import logging
+
+# Fix
+# from src.config.db_config import get_dsn
 from src.gold.db_setup_gold import get_dsn
 
 # Sätter upp grundinställningar för logging
+# Fix — add return
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
