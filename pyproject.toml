@@ -23,6 +23,7 @@ dependencies = [
     "sqlalchemy>=2.0.47",
     "streamlit>=1.28.0,<2.0.0",
     "uvicorn[standard]>=0.41.0",
+    "requests>=2.31.0",
 ]
 
 [dependency-groups]
