@@ -66,3 +66,57 @@ Code reviews :
 Reviewed Johnny's connection pool and main.py before approving his PR.
 
 ```
+
+## Tuesday 17/03-2026 - Thursday 19/03-2026
+
+```text
+api_schemas.py — Data contracts for the API :
+
+Built the Pydantic response models that Johnny's API uses to validate outgoing data.
+Basically a mirror of our silver_sensor_data table as Python classes.
+
+- SensorData, PaginationMetadata and PaginatedSensorResponse
+
+test_api.py — Testing without Docker :
+
+Built the full test suite for Johnny's API endpoints using FastAPI's dependency override system.
+The whole point is these tests run without Docker, without PostgreSQL, without anything.
+
+- Built MockCursor and MockConnection to replace the real DB connection
+- Used try/finally in override_get_db_connection() so cleanup always runs even if a test crashes
+- Fixed Pylance warning on __exit__ using *_ instead of named params
+- Added teardown_module() at the bottom so the mock doesn't leak into other test files
+- 8 tests total — root, health, sensors endpoint, filters, and input validation (422 errors)
+
+Code reviews :
+
+Reviewed Johnny's connection pool and main.py before approving his PR.
+
+```
+
+## Tuesday 17/03-2026 - Monday 23/03-2026
+
+### Silver Layer — Sprint Demo Preparation
+
+```text
+Prepared the Silver layer for sprint demo. Focus was on making sure the full
+Bronze -> Silver flow was stable, demonstrable and clean enough to present.
+
+Wrote test_cleaner.py to cover the Silver layer cleaning logic.
+- Tests revealed a bug in cleaner.py — incorrect handling of certain edge cases
+- Also found a related issue in etl_job.py caused by the same root problem
+- Discussed findings with Johnny — he located and fixed both files
+- Johnny pushed the updated cleaner.py and etl_job.py to the repo
+
+Built the dashboard components that connect our Gold layer to the Streamlit frontend.
+
+- queries.py
+This is where all the SQL lives for the dashboard. Every function just returns a SQL string that reads from our Gold star schema — the fact tables and dimension tables we built. I kept all the queries in one place so if something needs changing, you only have to touch one file instead of hunting through every page script.The queries cover everything the dashboard needs — fleet-wide KPIs, warning breakdowns by appliance type and city, temperature trends over the last 90 days, top offending engines, and maintenance health bands based on run hours.
+
+- charts.py
+All the Plotly chart functions live here. Each function takes a DataFrame and returns a chart — nothing else. No Streamlit code in here at all, which means the charts are reusable and easy to test independently. Same Separation of Concerns principle we used throughout the rest of the pipeline.Covers grouped bar charts, horizontal bars, a line chart for temperature trends, a donut chart for fleet health distribution, and a histogram for run hours.
+
+- 01_overview.py and 02_anomalies.py
+These are the actual dashboard pages. They connect to the database, call the query functions, check if there's data, and pass the results to the chart functions to display. Every section has an empty-data guard so the page shows a friendly message instead of crashing if the Gold layer has no data yet.
+
+```
