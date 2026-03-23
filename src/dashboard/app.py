@@ -13,7 +13,7 @@ with col2:
         "**Anomalies**\n\nIdentifiera sensorer som skickar extremvärden eller smutsig data."
     )
 with col3:
-    st.error(
+    st.info(
         "**Maintenance**\n\nDyk djupt i specifika orsaker för prediktivt underhåll."
     )
 with col4:
