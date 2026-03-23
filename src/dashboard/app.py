@@ -13,11 +13,9 @@ with col2:
         "**Anomalies**\n\nIdentifiera sensorer som skickar extremvärden eller smutsig data."
     )
 with col3:
-    st.info(
-        "**Maintenance**\n\nDyk djupt i specifika orsaker för prediktivt underhåll."
-    )
+    st.info("**Maintenance**\n\nDyk ner i specifika orsaker för prediktivt underhåll.")
 with col4:
-    st.error("**Errors**\n\nDyk djupt i typer av fel maskinerna råkar ut för.")
+    st.error("**Errors**\n\nDyk ner i olika typer av fel sensorerna råkar ut för.")
 
 # Testa kopplingen till databasen för att visa att allt fungerar
 try:
