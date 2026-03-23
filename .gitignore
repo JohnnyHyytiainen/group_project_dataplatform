@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 !.env.template
+secrets.toml
 # AWS/Cloud keys om de skulle råka hamna här
 .aws/
 secrets/
