@@ -29,7 +29,7 @@ def run_silver_batch():
 
             bronze_rows = cur.fetchall()
             if not bronze_rows:
-                print("No data find in staging. Exiting!")
+                print("No data found in staging. Exiting!")
 
                 return
 
@@ -75,6 +75,8 @@ def run_silver_batch():
 
                         inserted_row = cur.fetchone()
 
+                        conn.commit()
+
                         if inserted_row:
                             processed_file.write(json.dumps(clean_dict) + "\n")
                             line_processed += 1
@@ -83,12 +85,20 @@ def run_silver_batch():
                     except json.JSONDecodeError as e:
                         print(f"Skipping row {row['id']} due to invalid JSON: {e}")
 
+                    # Gör rollback om det det blir databas fel
+                    except psycopg.Error as e:
+                        conn.rollback()
+                        print(f"Database error on row {row['id']}: {e}. Rolled back.")
+
                     # Fångar övriga fel per rad så resten av batchen kan fortsätta.
                     except Exception as e:
-                        print(f"Error processing row {row['id']}: {e}")
+                        conn.rollback()
+                        print(
+                            f"Error processing row {row['id']}: {e}. Rolled back attempted."
+                        )
 
                 # Sparar alla inserts i en batch och skriver ut slutresultatet.
-                conn.commit()
+                # conn.commit()
                 print(
                     f"Work is done. {line_processed} Rows processed, cleaned and saved in Silver layer."
                 )
