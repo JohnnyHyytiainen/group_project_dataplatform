@@ -32,8 +32,24 @@ def get_errors_by_city_query():
     """
 
 
-# --- Sektion 4: Fel procent per stad ---
-# Error % per stad
+# --- Sektion 3: Hur många andelar av alla sensor mätningar är larm? ---
+def get_error_events_by_city_query():
+    """Räknar ut andelen (i procent) av MÄTNINGAR (events) som är larm per stad."""
+    return """
+        SELECT 
+            l.location,
+            COUNT(f.reading_id) AS total_readings,
+            COUNT(CASE WHEN f.temp_warning OR f.rpm_warning OR f.vibration_warning OR f.maintenance_warning THEN 1 END) AS error_readings,
+            ROUND((COUNT(CASE WHEN f.temp_warning OR f.rpm_warning OR f.vibration_warning OR f.maintenance_warning THEN 1 END) * 100.0) / NULLIF(COUNT(f.reading_id), 0), 1) AS error_percentage
+        FROM fact_sensor_reading f
+        JOIN dim_location l ON f.location_sk = l.location_sk
+        GROUP BY l.location
+        ORDER BY error_percentage DESC;
+    """
+
+
+# --- Sektion 3: Fel procent per stad ---
+# Error % TOTAL andel per stad
 def get_error_rate_by_city_query():
     """Räknar ut andelen(i procent) av maskinerna i en stad som har larm."""
     return """

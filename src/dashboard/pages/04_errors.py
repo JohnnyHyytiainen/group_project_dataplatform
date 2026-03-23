@@ -3,7 +3,7 @@ from components.queries_errors import (
     get_error_types_query,
     get_errors_by_city_query,
     get_error_timeline_query,
-    get_error_rate_by_city_query,
+    get_error_events_by_city_query,
 )
 
 st.set_page_config(page_title="Maskinfel", layout="wide")
@@ -51,9 +51,9 @@ with col_right:
 st.divider()
 
 
-# --- Sektion 4: Fel procent per stad ---
-st.subheader("Vilken stad har sjukast maskinpark? (Felprocent)")
-df_error_rate = conn.query(get_error_rate_by_city_query())
+# --- Sektion 3: Hur många andelar av alla sensor mätningar är larm? ---
+st.subheader("Hur stor andel av ALLA sensormätningar i Stad är larm?")
+df_error_rate = conn.query(get_error_events_by_city_query())
 if not df_error_rate.empty:
     st.bar_chart(df_error_rate.set_index("location")["error_percentage"])
 
