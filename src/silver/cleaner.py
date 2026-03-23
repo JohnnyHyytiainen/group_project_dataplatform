@@ -30,7 +30,7 @@ def clean_event(raw_event: dict) -> dict:
     # 1) Validera värden. Sätter is_valid till false för extrema värden
     numeric_fields = ["rpm", "engine_temp", "vibration_hz", "run_hours"]
     extreme_value = False
-    missing_value = False
+    # missing_value = False
 
     for field in numeric_fields:
         if field in cleaned and isinstance(cleaned[field], str):
@@ -46,8 +46,8 @@ def clean_event(raw_event: dict) -> dict:
         val = cleaned.get(field)  # Hämtar säkert, blir None om fältet helt saknas
 
         # Om värdet saknas -> flagga
-        if val is None:
-            missing_value = True
+        # if val is None:
+        #     missing_value = True
         # Om värdet är utanför valid ranges -> flagga
         if val is not None and not (min_val <= val <= max_val):
             extreme_value = True
@@ -77,7 +77,7 @@ def clean_event(raw_event: dict) -> dict:
     # 4) Sätt en is_valid flagga (Vi kräver att alla VALID rows innehåller ett engine_id!!!)
     is_valid_engine = bool(cleaned.get("engine_id"))
 
-    cleaned["is_valid"] = is_valid_engine and not extreme_value and not missing_value
+    cleaned["is_valid"] = is_valid_engine and not extreme_value  # and not missing_value
 
     # 5) Returnera cleaned
     return cleaned
