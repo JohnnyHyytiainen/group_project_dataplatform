@@ -1,50 +1,70 @@
+"""
+Page 2 — Warnings & Anomalies
+Temperature trends over time, warnings by city, and top offending engines.
+"""
+
 import streamlit as st
-
-st.set_page_config(page_title="Anomalies", layout="wide")
-st.title("Anomalier & Datakvalitet")
-
-# Initiera databaskopplingen
-conn = st.connection("postgresql", type="sql")
-
-
-# @st.cache_data gör att resultatet sparas i minnet.
-# ttl=60 betyder att den hämtar ny data från databasen max en gång i minuten.
-@st.cache_data(ttl=60)
-def get_invalid_data_stats():
-    query = """
-    SELECT 
-        a.appliance_type,
-        COUNT(f.reading_id) AS total_events,
-        SUM(CASE WHEN f.is_valid = FALSE THEN 1 ELSE 0 END) AS invalid_events
-    FROM FACT_SENSOR_READING f
-    JOIN DIM_ENGINE e ON f.engine_sk = e.engine_sk
-    JOIN DIM_APPLIANCE a ON e.appliance_sk = a.appliance_sk
-    GROUP BY a.appliance_type;
-    """
-    # conn.query returnerar en Pandas DataFrame automatiskt!
-    return conn.query(query)
-
-
-st.write(
-    "Här analyserar vi sensorernas tillförlitlighet och hur ofta vi tappar data (is_valid = FALSE)."
+from components.queries import (
+    get_warnings_by_city_query,
+    get_avg_temp_over_time_query,
+    get_top_warning_engines_query,
+)
+from components.charts import (
+    warnings_by_city_bar,
+    avg_temp_line_chart,
+    top_warning_engines_bar,
 )
 
-# Hämta datan via vår cachade funktion
-df_anomalies = get_invalid_data_stats()
+st.set_page_config(page_title="Varningar & Anomalier", page_icon="⚠️", layout="wide")
+st.title("⚠️ Varningar & Anomalier")
+st.markdown(
+    "Temperaturutveckling över tid, geografisk varningsfördelning och de motorer som genererar flest larm."
+)
 
-# Skapa en ny kolumn för procentuell felfrekvens
-df_anomalies["error_rate_%"] = (
-    df_anomalies["invalid_events"] / df_anomalies["total_events"]
-) * 100
+# Koppla upp mot databasen
+conn = st.connection("postgresql", type="sql")
 
-# Visa datan i layouten (två spalter)
-col1, col2 = st.columns(2)
+# Hämta data
+df_temp = conn.query(get_avg_temp_over_time_query())
+df_city = conn.query(get_warnings_by_city_query())
+df_engines = conn.query(get_top_warning_engines_query())
 
-with col1:
-    st.subheader("Rådata")
-    st.dataframe(df_anomalies, use_container_width=True)
+# ── TEMPERATURE OVER TIME ─────────────────────────────────────────────────────
+st.subheader("🌡️ Daglig medeltemperatur (senaste 90 dagarna)")
 
-with col2:
-    st.subheader("Felfrekvens per maskintyp")
-    # Streamlit har inbyggda grafer som är superenkla att använda
-    st.bar_chart(data=df_anomalies, x="appliance_type", y="error_rate_%")
+if not df_temp.empty:
+    st.plotly_chart(avg_temp_line_chart(df_temp), use_container_width=True)
+else:
+    st.info("Ingen temperaturdata tillgänglig för de senaste 90 dagarna.")
+
+st.divider()
+
+# ── WARNINGS BY CITY ──────────────────────────────────────────────────────────
+st.subheader("🗺️ Varningshändelser per stad")
+
+if not df_city.empty:
+    st.plotly_chart(warnings_by_city_bar(df_city), use_container_width=True)
+else:
+    st.info("Inga varningshändelser hittades.")
+
+st.divider()
+
+# ── TOP WARNING ENGINES ────────────────────────────────────────────────────────
+st.subheader("🔴 Topp 20 motorer efter antal varningar")
+
+if not df_engines.empty:
+    st.plotly_chart(top_warning_engines_bar(df_engines), use_container_width=True)
+    st.dataframe(
+        df_engines.rename(
+            columns={
+                "engine_id": "Motor-ID",
+                "appliance_type": "Maskintyp",
+                "city": "Stad",
+                "total_warnings": "Totalt varningar",
+            }
+        ),
+        use_container_width=True,
+        hide_index=True,
+    )
+else:
+    st.info("Ingen motorvarningsdata tillgänglig.")
