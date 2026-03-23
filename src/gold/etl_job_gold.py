@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 DB_DSN = get_dsn()
 
 # Tröskelvärden för affärslogiken
-MAINTENANCE_WARNING_HOURS = 4000.0
+MAINTENANCE_WARNING_HOURS = 500.0
 ENGINE_TEMP_WARNING_C = 101.0
 RPM_MAX_NORMAL = 1600.0
 VIBRATION_MAX_NORMAL = 10.0
