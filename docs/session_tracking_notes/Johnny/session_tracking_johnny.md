@@ -204,3 +204,14 @@ Add database connection pool for API
 - Cleaned up a bit in docs and remade diagrams to show correct flow of entire architecture
     - **Done**
     
+## Monday 23/03-2026
+**Goals for today:**
+- Setup working streamlit dashboard to start setting up visual analysis
+    - **Done**
+
+- Started to work on page 04 in dashboard - ERRORS with `queries_errors.py` file
+    - **Done**
+
+- Coorporate and divide the dashboarding part with Indira to not work on the same files
+    - **Done**
+
