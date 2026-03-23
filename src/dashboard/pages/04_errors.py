@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from components.queries_errors import (
     get_error_types_query,
     get_errors_by_city_query,
