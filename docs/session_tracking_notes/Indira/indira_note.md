@@ -96,8 +96,6 @@ Reviewed Johnny's connection pool and main.py before approving his PR.
 
 ## Tuesday 17/03-2026 - Monday 23/03-2026
 
-### Silver Layer — Sprint Demo Preparation
-
 ```text
 Prepared the Silver layer for sprint demo. Focus was on making sure the full
 Bronze -> Silver flow was stable, demonstrable and clean enough to present.
@@ -118,5 +116,27 @@ All the Plotly chart functions live here. Each function takes a DataFrame and re
 
 - 01_overview.py and 02_anomalies.py
 These are the actual dashboard pages. They connect to the database, call the query functions, check if there's data, and pass the results to the chart functions to display. Every section has an empty-data guard so the page shows a friendly message instead of crashing if the Gold layer has no data yet.
+
+```
+
+## Tuesday 25/03-2026 — Final Demo Preparation
+
+### CI/CD Fix — Ruff E731
+
+```text
+GitHub Actions CI pipeline failed on the "Lint with Ruff" step.
+Ruff flagged E731 in 01_overview.py — assigned lambda to a variable (warn_pct)
+which violates Python best practices. Ruff requires a proper def instead.
+
+- Identified the failing line: warn_pct = lambda x: f"..."
+- Replaced with a named def function to comply with Ruff E731 rule
+- CI then failed on "Format check using Ruff" — the manual edit had
+  incorrect spacing that didn't match Ruff's formatter expectations
+- Fixed by running: uv run ruff format src/dashboard/pages/01_overview.py
+- Committed on feature branch (not main) following team branching standard
+- CI pipeline passed after format fix was pushed
+- Wrote technical documentation covering all Streamlit tools used across the dashboard.
+Documented every tool, why it was used, and the reasoning behind our architecture split.
+
 
 ```
