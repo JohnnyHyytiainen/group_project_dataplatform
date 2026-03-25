@@ -1,5 +1,4 @@
 # Module Overview: API Core, Connection Pooling & Data Contracts
-
 _Written and developed by Indira and Johnny_
 
 This document describes the architecture, performance optimizations, and security layers of our FastAPI build serving the Silver Layer data.
@@ -43,19 +42,3 @@ Our API is built with a _Defense in Depth_ mindset to protect our data and ensur
 Without `dict_row` `psycopg` returns tuples as mentioned. But they get returned without column names which makes it impossible for `FastAPI` to know that `(72.4, 1200.0, 8.1)` `72.4` is `engine_temp` and not `rpm`.
 
 - **Dynamic SQL (`WHERE 1=1`):** Starting our query with `WHERE 1=1` is a classic trick(thanks geeksforgeeks!). It allows us to bypass complex `if/else` logic to determine which filter comes first. We just dynamically append `AND [condition]` for every query parameter the user provides.
-
-## Running Instructions
-
-To start the API in development mode with "hot reload" (the server automatically restarts when you change the code), run:
-
-```bash
-uv run uvicorn src.api.main:app --reload
-```
-
-## Testing Instructions.
-
-To test our API run this command:
-
-```bash
-uv run pytest src/test/test_api.py  -v
-```
