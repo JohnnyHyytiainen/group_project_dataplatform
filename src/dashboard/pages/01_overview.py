@@ -151,7 +151,7 @@ if "Fleet KPIs" in section:
 
     st.plotly_chart(warning_pie_chart(s), use_container_width=True)
     st.info(
-        f"Totalt {100*s['total_warning_events']/max(s['total_events'],1):.1f}% av alla mätningar "
+        f"Totalt {100 * s['total_warning_events'] / max(s['total_events'], 1):.1f}% av alla mätningar "
         f"triggar minst ett larm. Högsta temp: {s['max_temp']}°C. Max körtid: {s['max_run_hours']}h."
     )
 
@@ -209,7 +209,7 @@ elif "Underhåll" in section:
             crit_df = maint_dist[maint_dist["health_band"].str.startswith("Critical")]
             crit_n = int(crit_df["engine_count"].iloc[0]) if not crit_df.empty else 0
             st.warning(
-                f"⚠️ {crit_n} motorer ({100*crit_n/max(total,1):.1f}%) är kritiska (≥5000h)."
+                f"⚠️ {crit_n} motorer ({100 * crit_n / max(total, 1):.1f}%) är kritiska (≥5000h)."
             )
 
     st.subheader("Fördelning av körtimmar (topp 500 motorer)")
