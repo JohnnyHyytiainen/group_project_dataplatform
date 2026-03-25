@@ -8,6 +8,7 @@ import sys
 # Importera mina motorer(scriptens funktioner)
 from src.silver.etl_job import run_silver_batch
 from src.gold.etl_job_gold import run_gold_etl
+from src.gold.daily_aggregator import run_daily_aggregation
 
 
 logging.basicConfig(
@@ -28,9 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--layer",
         type=str,
-        choices=["silver", "gold", "all"],
+        choices=["silver", "gold", "all", "daily"],
         required=True,
-        help="Choose which layer that should be run: 'silver', 'gold', or 'all' for the entire pipeline",
+        help="Choose which layer that should be run: 'silver', 'gold', 'all' or 'daily' for the entire pipeline",
     )
 
     return parser
@@ -54,6 +55,13 @@ def main(argv=None) -> int:
         if args.layer in ["gold", "all"]:
             logger.info("=== RUNNING GOLD LAYER (STAR SCHEMA UPSERT) ===")
             run_gold_etl()
+
+            logger.info("=== RUNNING GOLD DAILY AGGREGATION ===")
+            run_daily_aggregation()
+
+        if args.layer in ["daily"]:
+            logger.info("=== RUNNING GOLD DAILY AGGREGATION ===")
+            run_daily_aggregation()
 
         end_time = time.time()
         logger.info(

@@ -12,3 +12,6 @@
 
 3) To run EVERYTHING(ALL NIGHT BATCH)
     - `uv run python -m src.pipeline_runner --layer all`
+
+4) To run DAILY AGGREGATION(gold):
+    - `uv run python -m src.pipeline_runner --layer daily`
