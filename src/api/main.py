@@ -9,7 +9,7 @@ import logging
 
 
 # Importera  pool-logik
-# Ännu en import behövs för att hämta pydantic schema när det är byggt
+# Ännu en import behövs för att hämta pydantic schema.
 from src.api.database_connection_pool import (
     init_db_pool,
     close_db_pool,
@@ -72,8 +72,8 @@ def health_check(db: psycopg.Connection = Depends(get_db_connection)):
             cur.execute("SELECT 1;")
             cur.fetchone()
         db_status = "connected"
-    except Exception:
-        db_status = "disconnected"
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
 
     return {
         "status": "healthy" if db_status == "connected" else "degraded",
