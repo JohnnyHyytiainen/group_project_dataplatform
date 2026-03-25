@@ -1,6 +1,7 @@
 # IoT Appliance Sensor Pipeline (Medallion Architecture)
 
 > **Data Platform Development Lab & Group Project** > *Data Engineering 2025 Program at STI (Stockholm)*
+- [Contributors to this project](https://github.com/JohnnyHyytiainen/group_project_dataplatform/graphs/contributors)
 
 An event-driven data engineering platform simulating a fleet of smart home appliances. It ingests, validates, and stores raw sensor data via Apache Kafka and PostgreSQL, implementing a strict Medallion Architecture (Bronze, Silver, Gold). The platform is designed to process streaming telemetry, catch physical machine faults, and serve analytical data for predictive maintenance dashboards.
 
