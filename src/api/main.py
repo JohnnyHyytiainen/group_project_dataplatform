@@ -9,7 +9,7 @@ import logging
 
 
 # Importera  pool-logik
-# Ännu en import behövs för att hämta pydantic schema när det är byggt
+# Ännu en import behövs för att hämta pydantic schema.
 from src.api.database_connection_pool import (
     init_db_pool,
     close_db_pool,
