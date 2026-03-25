@@ -49,56 +49,51 @@ def run_silver_batch():
                         clean_dict = clean_event(raw_dict)
 
                         # Skriver tvättad data till silver-tabellen.
+                        # Använder savepoint för att kunna rulla tillbaka trasiga delar av transaktionen
                         # ON CONFLICT skyddar mot dubletter om samma event körs igen.
-                        cur.execute(
-                            """
-                                                                       
-                                    INSERT INTO silver_sensor_data
-                                    (engine_id, appliance_type, timestamp, run_hours, location,
-                                    rpm, engine_temp, vibration_hz, is_valid)
-                                    VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s)
-                                    ON CONFLICT (engine_id, timestamp) DO NOTHING
-                                    RETURNING silver_id                            
-                                    """,
-                            (
-                                clean_dict.get("engine_id"),
-                                clean_dict.get("appliance_type"),
-                                clean_dict.get("timestamp"),
-                                clean_dict.get("run_hours"),
-                                clean_dict.get("location"),
-                                clean_dict.get("rpm"),
-                                clean_dict.get("engine_temp"),
-                                clean_dict.get("vibration_hz"),
-                                clean_dict.get("is_valid"),
-                            ),
-                        )
+                        with conn.transaction():
+                            cur.execute(
+                                """                                        
+                            INSERT INTO silver_sensor_data
+                            (engine_id, appliance_type, timestamp, run_hours, location,
+                            rpm, engine_temp, vibration_hz, is_valid)
+                            VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (engine_id, timestamp) DO NOTHING
+                            RETURNING silver_id                            
+                            """,
+                                (
+                                    clean_dict.get("engine_id"),
+                                    clean_dict.get("appliance_type"),
+                                    clean_dict.get("timestamp"),
+                                    clean_dict.get("run_hours"),
+                                    clean_dict.get("location"),
+                                    clean_dict.get("rpm"),
+                                    clean_dict.get("engine_temp"),
+                                    clean_dict.get("vibration_hz"),
+                                    clean_dict.get("is_valid"),
+                                ),
+                            )
 
-                        inserted_row = cur.fetchone()
+                            inserted_row = cur.fetchone()
+                            # skriver till JSONL enbart om raden sattes in( inte var en dubblett)
 
-                        conn.commit()
+                            if inserted_row:
+                                processed_file.write(json.dumps(clean_dict) + "\n")
+                                line_processed += 1
 
-                        if inserted_row:
-                            processed_file.write(json.dumps(clean_dict) + "\n")
-                            line_processed += 1
-
-                    # Hanterar ogiltig JSON utan att hela batch-jobbet kraschar.
                     except json.JSONDecodeError as e:
                         print(f"Skipping row {row['id']} due to invalid JSON: {e}")
 
-                    # Gör rollback om det det blir databas fel
                     except psycopg.Error as e:
-                        conn.rollback()
-                        print(f"Database error on row {row['id']}: {e}. Rolled back.")
 
-                    # Fångar övriga fel per rad så resten av batchen kan fortsätta.
-                    except Exception as e:
-                        conn.rollback()
                         print(
-                            f"Error processing row {row['id']}: {e}. Rolled back attempted."
+                            f"Database error on row {row['id']}: {e}. Row safely rolled back."
                         )
 
-                # Sparar alla inserts i en batch och skriver ut slutresultatet.
-                # conn.commit()
+                    except Exception as e:
+                        print(f"Error processing row {row['id']}: {e}. Row skipped.")
+
+                conn.commit()
                 print(
                     f"Work is done. {line_processed} Rows processed, cleaned and saved in Silver layer."
                 )
