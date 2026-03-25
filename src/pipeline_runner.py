@@ -29,9 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--layer",
         type=str,
-        choices=["silver", "gold", "all"],
+        choices=["silver", "gold", "all", "daily"],
         required=True,
-        help="Choose which layer that should be run: 'silver', 'gold', or 'all' for the entire pipeline",
+        help="Choose which layer that should be run: 'silver', 'gold', 'all' or 'daily' for the entire pipeline",
     )
 
     return parser
@@ -56,6 +56,10 @@ def main(argv=None) -> int:
             logger.info("=== RUNNING GOLD LAYER (STAR SCHEMA UPSERT) ===")
             run_gold_etl()
 
+            logger.info("=== RUNNING GOLD DAILY AGGREGATION ===")
+            run_daily_aggregation()
+
+        if args.layer in ["daily"]:
             logger.info("=== RUNNING GOLD DAILY AGGREGATION ===")
             run_daily_aggregation()
 
