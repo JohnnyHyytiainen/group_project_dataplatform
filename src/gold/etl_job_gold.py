@@ -191,7 +191,6 @@ def run_gold_etl():
                     processed_count += 1
 
                 except Exception as e:
-
                     logger.error(
                         f"Error processing row with silver_id {silver_id}: {e}. Row skipped."
                     )

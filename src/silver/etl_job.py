@@ -85,7 +85,6 @@ def run_silver_batch():
                         print(f"Skipping row {row['id']} due to invalid JSON: {e}")
 
                     except psycopg.Error as e:
-
                         print(
                             f"Database error on row {row['id']}: {e}. Row safely rolled back."
                         )
