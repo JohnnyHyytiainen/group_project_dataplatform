@@ -216,7 +216,22 @@ Add database connection pool for API
     - **Done**
 
 - Start working on `maintenance.py` for dashboard. TRY to figure out some insights of value and propositions for maintenance
-    - Ongoing
+    - **Done**
 
 - Generate a bigger dataset, ramp up to 30-35k rows of raw data. Increase nr of machines from 800 -> 1200ish
+    - **Done**
+
+## Wednesday 25/03-2026
+**Goals for today:**
+- Generate more data for dashboard
+    - **Done**
+
+- Go through entire repo to find issues
     - Ongoing
+
+- Update Argparse CLI commands for pipeline_runner.py
+    - **Done**
+
+- Repo polish and cleaning before turn in
+    - Ongoing
+
