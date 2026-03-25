@@ -72,8 +72,8 @@ def health_check(db: psycopg.Connection = Depends(get_db_connection)):
             cur.execute("SELECT 1;")
             cur.fetchone()
         db_status = "connected"
-    except Exception:
-        db_status = "disconnected"
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
 
     return {
         "status": "healthy" if db_status == "connected" else "degraded",
