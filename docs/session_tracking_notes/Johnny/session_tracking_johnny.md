@@ -226,12 +226,12 @@ Add database connection pool for API
 - Generate more data for dashboard
     - **Done**
 
-- Go through entire repo to find issues
-    - Ongoing
+- Go through entire repo to find issues (my files)
+    - **Done**
 
 - Update Argparse CLI commands for pipeline_runner.py
     - **Done**
 
 - Repo polish and cleaning before turn in
-    - Ongoing
+    - **Done**
 

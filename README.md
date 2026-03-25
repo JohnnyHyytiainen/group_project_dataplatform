@@ -1,159 +1,161 @@
 # IoT Appliance Sensor Pipeline (Medallion Architecture)
-**Dataplatform Development lab and group project in the Data Engineering 2025 program at STI**
 
---- 
-**An event-driven data engineering pipeline simulating a fleet of smart home appliances. It ingests, validates, and stores raw sensor data via Apache Kafka and PostgreSQL, implementing a Medallion Architecture (Bronze, Silver, Gold) to process and analyze machine wear and tear over time.**
+> **Data Platform Development Lab & Group Project** > *Data Engineering 2025 Program at STI (Stockholm)*
 
-## Features (v0.1.0 - Bronze Layer)
+An event-driven data engineering platform simulating a fleet of smart home appliances. It ingests, validates, and stores raw sensor data via Apache Kafka and PostgreSQL, implementing a strict Medallion Architecture (Bronze, Silver, Gold). The platform is designed to process streaming telemetry, catch physical machine faults, and serve analytical data for predictive maintenance dashboards.
 
-* **Stateful Fleet Simulator:** Generates continuous, logical telemetry data (RPM, temperature, vibration, run hours) for a static fleet of appliances, allowing for actual time-series analysis.
+---
 
-* **Chaos Engineering:** Intentionally injects technical faults (missing IDs, offline sensors), business anomalies (overheating engines), and ETL noise (whitespaces, malformed strings) into the data stream.
+## Business Value & Core Pillars
+This platform translates raw IoT telemetry into actionable operational insights through four core pillars:
 
-* **Quality Gate (Consumer):** Utilizes Pydantic for strict schema validation. Valid events are routed to a staging table, while corrupted data is caught and routed to a Dead Letter Queue (DLQ).
+1. **Streaming Ingestion (Apache Kafka):** *From Reactive to Proactive.* We ingest real-time telemetry to detect anomalies instantly, rather than waiting for customer breakdown reports.
 
-* **ELT Storage Pattern:** Stores the original JSON payload as `TEXT` in PostgreSQL to preserve ETL noise, enabling the Silver layer to perform realistic data cleaning.
+2. **Medallion Architecture:** *Trust in Data.* By enforcing strict Pydantic quality gates across decoupled layers (Bronze, Silver, Gold), we guarantee that our BI dashboards reflect a 100% accurate, noise-free single source of truth.
+
+3. **Infrastructure as Code (Docker & CI/CD):** *Disaster Recovery & Portability.* The entire platform is containerized and validated by GitHub Actions. If a server goes down, the environment can be fully restored in minutes.
+
+4. **Database Migrations (Alembic):** *Safe Evolution.* We manage our PostgreSQL schemas with Alembic, enabling zero-downtime upgrades and instant rollbacks to protect historical data integrity.
+
+---
 
 ## Tech Stack
 
 * **Data Generation:** Python 3.12+, Faker
-* **Message Broker:** Apache Kafka (Docker), `confluent-kafka`
+* **Message Broker:** Apache Kafka (Docker/KRaft)
+* **Ingestion & ETL:** `confluent-kafka`, `psycopg` (v3)
 * **Data Validation:** Pydantic
-* **Database:** PostgreSQL (Docker), `psycopg`
-* **Tooling:** `uv`, Git
+* **Database & Migrations:** PostgreSQL 16, Alembic
+* **Serving & Visualization:** FastAPI, Streamlit
+* **DevOps:** Docker Compose, `uv`, GitHub Actions, Ruff, Pytest
 
 ---
 
 ## Project Structure
-**TODO: Fill in entire folder tree**
+
 ```text
 iot_sensor_pipeline/
-├── data/raw/               # Cold storage for generated JSONL source of truth
-│
-├── docs/                   # System Architecture Docs (CDM, LDM, PDM, Overviews)
-│
-├── config/
-│
+├── alembic/                # Database migration scripts & history
+├── data/
+│   ├── raw/                # Cold storage for generated JSONL source of truth
+│   └── processed/          # Silver layer backups
+├── docs/                   # Architecture Docs (CDM, LDM, PDM, Overviews)
+│   ├── diagrams/           # Visual representations of data flow
+│   └── modules/            # Deep dives into Business Value & Technical decisions
 ├── src/
-│   │└── producer/
-│   │   └── producer.py     # Fleet simulator and Kafka producer (Bronze)    
-│   │   └── replayer.py     # Replays old events from producer for worker to consume (Bronze)
-│   │
-│   └── consumer/      
-│       └── worker.py       # Quality gate and Postgres ingestion (Bronze)
-│ 
-│
+│   ├── api/                # FastAPI backend with connection pooling
+│   ├── config/             # Centralized environment variable management
+│   ├── consumer/           # Kafka Consumer & Bronze ingestion (Quality Gate)
+│   ├── dashboard/          # Streamlit UI (Overview, Anomalies, Errors)
+│   ├── gold/               # Star Schema ETL & Daily Aggregations
+│   ├── producer/           # Stateful Fleet simulator & Kafka producer
+│   ├── schemas/            # Global Pydantic data contracts
+│   ├── silver/             # Idempotent cleaning & structural transformations
+│   └── test/               # Pytest suite for API and Data Validation
 ├── .env.example            # Template for environment variables
-├── docker-compose.yml      # Local infrastructure (Kafka, Zookeeper, PostgreSQL)
-├── pyproject.toml          # Dependencies managed by uv
-└── README.md
-
+├── docker-compose.yml      # Local infrastructure orchestration
+├── Dockerfile              # Unified, optimized Python image
+└── pyproject.toml          # Dependencies managed by uv
 ```
+
 
 ## Quickstart
 
 ### Prerequisites
 
-* Docker / Docker Desktop
-* `uv` installed
+  * Docker / Docker Desktop
+  * `uv` (Fast Python package manager) installed
 
-### 1) Clone & Configure Environment
+### 1\. Clone & Configure Environment
 
-```bash
-git clone https://github.com/JohnnyHyytiainen/group_project_dataplatform.git
-cd group_projet_dataplatform
-cp .env.example .env
 
-```
+- git clone [https://github.com/JohnnyHyytiainen/group_project_dataplatform](https://github.com/JohnnyHyytiainen/group_project_dataplatform)
+- cd group_project_dataplatform
+- cp .env.example .env
 
-> Ensure your `.env` contains the correct database credentials and ports (e.g., `DB_PORT=5440` if running in sandbox mode).
 
-### 2) Start Infrastructure (Kafka & PostgreSQL)
+*(Ensure your `.env` contains the correct database credentials).*
 
-```bash
-docker compose up -d
+### 2\. Start the Data Platform (Orchestration)
 
-```
-
-Check Docker Desktop or run `docker ps` to ensure both containers are healthy.
-
-### 3) Install Dependencies
+Spin up the entire Medallion Architecture (PostgreSQL, Kafka, API, Consumer, Producer, and Dashboard) with a single command:
 
 ```bash
-uv sync
-
+docker compose up -d --build
 ```
 
-### 4) Run the Bronze Layer Pipeline
+> **Note:** The Producer will automatically start simulating the 1,200 machine fleet, and the Consumer will begin ingesting into the Bronze layer.
 
-Open two separate terminal windows.
+### 3\. Access the Interfaces
 
-**Terminal 1 (Start the Consumer / Quality Gate):**
-This script will automatically establish the PostgreSQL tables (`staging_sensor_data` and `faulty_events`) and begin listening to the Kafka topic.
+  * **Streamlit BI Dashboard:** `http://localhost:8501`
+  * **FastAPI Swagger UI:** `http://localhost:8000/docs`
+
+### 4\. Database Migrations (Alembic)
+
+To ensure your database structure is up to date with the latest code, run:
 
 ```bash
-uv run python -m src.consumer.consumer
-
+uv run alembic upgrade head
 ```
 
-**Terminal 2 (Start the Producer / Fleet Simulator):**
-This will build the fleet in memory and start streaming events to Kafka, including intentional anomalies.
+*(To tear down the environment and wipe the database volumes, run `docker compose down -v`)*
 
-```bash
-uv run python -m src.producer.producer
-
-```
-
----
+-----
 
 ## Architecture & Roadmap
 
-### 🥉 Bronze Layer (Raw Ingestion) - *Completed*
+### Bronze Layer (Raw Ingestion) - *Completed*
 
-* [x] Stateful data generation with "chaos injection"(creating mess on purpose) (`producer.py`)
-* [x] Kafka topic streaming
-* [x] Real-time Pydantic monitoring & DLQ routing (Failing gracefully into `faulty_events`) (`worker.py`)
-* [x] Raw TEXT storage in PostgreSQL (`staging_sensor_data`) acting as our Single Source of Truth.
-* [x] Stable handling of databas connection and environmental variables
-* [x] Data Modeling for entire Database design. Bronze -> Silver -> Golden layers  
+  * [x] **Stateful Data Generation:** Simulates continuous wear-and-tear `run_hours` with Chaos Engineering (intentional anomalies)
 
-### 🥈 Silver Layer (Cleansed & Conformed) - *In Progress*
+  * [x] **Event Streaming:** Decoupled architecture using Apache Kafka.
 
-* [x] Pure Python ETL batch job to extract raw_data from the Bronze staging table.  
+  * [x] **Quality Gate:** Real-time Pydantic validation routing corrupt data to a Dead Letter Queue `faulty_events`.
 
-* [/] Clean injected formatting noise (.strip() whitespaces, standardize casing) without relying on Pandas.
+  * [x] **ELT Storage:** Preserves raw JSON payloads as `TEXT` in PostgreSQL.
 
-* [x] Soft-filtering: Handle missing engine_id by setting an is_valid = False flag instead of dropping data.
+### Silver Layer (Cleansed & Conformed) - *Completed*
 
-* [x] Idempotent Delta Load into a strongly typed `silver_sensor_data` PostgreSQL table (`ON CONFLICT DO NOTHING` utilizing `NULLS NOT DISTINCT`).
+  * [x] **Pure Python ETL:** Extracts raw Bronze data without relying on heavy frameworks like Pandas.
 
-* [ ] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
+  * [x] **Data Cleaning:** Strips whitespace, standardizes casing, and handles missing IDs using soft-filtering `is_valid` flags.
 
-### 🥇 Gold Layer (Curated & Aggregated) - Planned
+  * [x] **Idempotent Upserts:** Ensures no duplicate data via `ON CONFLICT DO NOTHING`.
 
-* [x] Design and implement a Dimensional Model / Star Schema (`FACT_SENSOR_READING`, `DIM_ENGINE`, `DIM_DATE`, etc)
+  * [x] **Database Versioning:** Schema managed securely via Alembic.
 
-* [-] Strict SQL transformations (e.g, extracting only `WHERE is_valid = TRUE`).
+### Gold Layer (Curated & Aggregated) - *Completed*
 
-* [ ] Calculate business KPIs and hard threshold flags (Maintenance, Temperature, Vibration warnings) directly in SQL.
+  * [x] **Dimensional Modeling:** Implemented a strict Star Schema `FACT_SENSOR_READING`, `DIM_ENGINE`, `DIM_LOCATION`, etc.
 
-* [-] Build aggregated daily tables (`FACT_ENGINE_DAILY`) for optimized dashboard querying.
+  * [x] **Business Logic in SQL:** Calculates physical machine faults Maintenance, Temperature, RPM, Vibration warnings.
 
-### 🚀 API Layer (Serving) - *Completed*
-* [x] Build a FastAPI backend to serve curated data from the Medallion architecture.
+  * [x] **BI Integration:** Connects seamlessly to Streamlit for real-time Executive Dashboards.
 
-* [x] Implement pagination, connection pooling, and dynamic query filtering.
+### API Layer (Serving) - *Completed*
 
-* [x] Protect endpoints with Pydantic response models and comprehensive unit testing.
+  * [x] **FastAPI Backend:** Serves clean data with built-in DDoS protection (Pagination).
+  * [x] **Connection Pooling:** Uses `psycopg_pool` managed via `@asynccontextmanager` to prevent database overloading.
+  * [x] **Dynamic Filtering:** `WHERE 1=1` implementation for flexible query parameters.
 
---- 
+-----
 
 ## Documentation
 
-Check the `docs/` folder for comprehensive system architecture details:
+For a deep dive into our engineering decisions, please explore the `docs/` folder:
 
-* **[Bronze Layer Module Overview](docs/diagrams/architecture_BRONZE.png)**
+  * **[Bronze Layer Architecture & Setup](docs/modules/module_overview_bronze_layer.md)**
+  * **[Database Design & Medallion Philosophy](docs/modules/module_overview_database_architecture_design.md)**
+  * **[Data Lineage & Soft Deletes](docs/modules/module_overview_database_lineage.md)**
+  * **[Database Migrations with Alembic](docs/modules/module_overview_db_migration_alembic.md)**
+  * **[CI/CD with GitHub Actions](docs/modules/module_overview_CICD_github_actions.md)**
+  * **[API Core & Connection Pooling](docs/modules/module_overview_api.md)**
+
+### ERDs and Visuals
+* **[Bronze Layer Flowchart overview](docs/diagrams/architecture_BRONZE.png)**
+* **[Silver Layer Flowchart overview](docs/diagrams/architecture_SILVER.png)**
 * **[Conceptual, Logical, and Physical Data Models for Bronze, Silver, Gold layers](docs/diagrams/)**
-* **[Module overview docs for Bronze layer(in swedish)](docs/module_overview_bronze_layer.md)**
+
 
 ---
