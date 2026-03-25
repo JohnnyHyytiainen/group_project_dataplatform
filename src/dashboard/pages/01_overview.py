@@ -134,7 +134,10 @@ if "Fleet KPIs" in section:
     st.subheader("Larmtyper")
 
     wc1, wc2, wc3, wc4 = st.columns(4)
-    warn_pct = lambda x: f"{100*x/max(s['total_events'],1):.1f}% av mätningar"
+
+    def warn_pct(x):
+        return f"{100 * x / max(s['total_events'], 1):.1f}% av mätningar"
+
     wc1.metric(
         "🔧 Underhåll", f"{int(s['maint_warnings']):,}", warn_pct(s["maint_warnings"])
     )
