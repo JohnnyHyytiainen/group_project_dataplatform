@@ -30,6 +30,7 @@ services:
   api:
     build: .
     container_name: live_api
+    restart: on-failure
     ports:
       - "8000:8000"
     volumes:
@@ -58,6 +59,8 @@ services:
     depends_on:
       - postgres
       - kafka
+    volumes:
+      - ./data:/app/data
 
   producer:
     build: .
