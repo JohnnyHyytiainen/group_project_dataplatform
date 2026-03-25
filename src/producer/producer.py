@@ -87,7 +87,7 @@ try:
                 "location": machine["location"],
                 "rpm": round(random.uniform(0.0, 1600.0), 2),
                 "engine_temp": round(random.uniform(10.0, 100.0), 2),
-                "vibration_hz": round(random.uniform(0.1, 15), 2),
+                "vibration_hz": round(random.uniform(0.1, 9.9), 2),
             }
 
             # ==========

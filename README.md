@@ -121,23 +121,23 @@ uv run python -m src.producer.producer
 
 * [x] Pure Python ETL batch job to extract raw_data from the Bronze staging table.  
 
-* [/] Clean injected formatting noise (.strip() whitespaces, standardize casing) without relying on Pandas.
+* [x] Clean injected formatting noise (.strip() whitespaces, standardize casing) without relying on Pandas.
 
 * [x] Soft-filtering: Handle missing engine_id by setting an is_valid = False flag instead of dropping data.
 
 * [x] Idempotent Delta Load into a strongly typed `silver_sensor_data` PostgreSQL table (`ON CONFLICT DO NOTHING` utilizing `NULLS NOT DISTINCT`).
 
-* [ ] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
+* [x] Export a curated backup to a Data Lake file (`cleaned_sensor_data.jsonl`).
 
 ### 🥇 Gold Layer (Curated & Aggregated) - Planned
 
 * [x] Design and implement a Dimensional Model / Star Schema (`FACT_SENSOR_READING`, `DIM_ENGINE`, `DIM_DATE`, etc)
 
-* [-] Strict SQL transformations (e.g, extracting only `WHERE is_valid = TRUE`).
+* [x] Strict SQL transformations (e.g, extracting only `WHERE is_valid = TRUE`).
 
-* [ ] Calculate business KPIs and hard threshold flags (Maintenance, Temperature, Vibration warnings) directly in SQL.
+* [x] Calculate business KPIs and hard threshold flags (Maintenance, Temperature, Vibration warnings) directly in SQL.
 
-* [-] Build aggregated daily tables (`FACT_ENGINE_DAILY`) for optimized dashboard querying.
+* [x] Build aggregated daily tables (`FACT_ENGINE_DAILY`) for optimized dashboard querying.
 
 ### 🚀 API Layer (Serving) - *Completed*
 * [x] Build a FastAPI backend to serve curated data from the Medallion architecture.
