@@ -1,6 +1,4 @@
 # HOW TO RUN CLI COMMANDS
-
-
 ## Run the pipeline runner (remote(fjärrkontrollen))
 
 - Open a terminal
